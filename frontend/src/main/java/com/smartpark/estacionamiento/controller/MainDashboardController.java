@@ -11,6 +11,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.nio.file.Files;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,23 +148,68 @@ public class MainDashboardController {
         String placa = placaSalidaTextField.getText().trim();
         boolean conLavado = lavadoCheckBox.isSelected();
 
-        if(placa.isEmpty()) {
+        if (placa.isEmpty()) {
             mostrarAlerta(Alert.AlertType.WARNING, "Alerta", "Por favor ingrese la placa del vehículo.");
             return;
         }
 
         try {
+            // 1. Registramos la salida en el backend
             Ticket ticketPagado = apiClient.registrarSalida(placa, conLavado);
 
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Salida Registrada", "¡Salida registrada exitosamente!\nTotal a pagar: S/ " + ticketPagado.getCostoTotal());
+            // 2. Mostramos el total a pagar
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Salida Registrada",
+                    "¡Salida registrada exitosamente!\nTotal a pagar: S/ " + ticketPagado.getCostoTotal());
 
+            // 3. UX: Preguntamos si desea guardar el recibo
+            preguntarYDescargarPDF(ticketPagado);
+
+            // 4. Limpiamos y refrescamos
             placaSalidaTextField.clear();
             lavadoCheckBox.setSelected(false);
-
             cargarDatosDesdeBackend();
 
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de API", e.getMessage());
+        }
+    }
+
+    // --- NUEVOS MÉTODOS PARA EL PDF ---
+    private void preguntarYDescargarPDF(Ticket ticket) {
+        Alert confirmar = new Alert(Alert.AlertType.CONFIRMATION,
+                "¿Desea generar y guardar el recibo en PDF?",
+                ButtonType.YES, ButtonType.NO);
+
+        confirmar.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                descargarYGuardarPDF(ticket);
+            }
+        });
+    }
+
+    private void descargarYGuardarPDF(Ticket ticket) {
+        // Configuramos la ventana de guardado
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar Recibo PDF");
+        fileChooser.setInitialFileName("Recibo-" + ticket.getVehiculo().getPlaca() + ".pdf");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Documento PDF", "*.pdf"));
+
+        // Obtenemos la ventana actual para mostrar el cuadro de diálogo por encima
+        Stage stage = (Stage) placaSalidaTextField.getScene().getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            try {
+                // Descargamos los bytes desde el servidor
+                byte[] pdfBytes = apiClient.descargarReciboPdf(ticket.getId());
+
+                // Guardamos los bytes en el archivo físico que el usuario eligió
+                Files.write(file.toPath(), pdfBytes);
+
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Recibo PDF guardado correctamente.");
+            } catch (Exception e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo guardar el PDF: " + e.getMessage());
+            }
         }
     }
 
