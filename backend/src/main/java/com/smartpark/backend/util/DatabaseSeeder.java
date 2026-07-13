@@ -4,6 +4,8 @@ import com.smartpark.backend.model.domain.ParkingSlot;
 import com.smartpark.backend.model.domain.Usuario;
 import com.smartpark.backend.repository.ParkingSlotRepository;
 import com.smartpark.backend.repository.UsuarioRepository;
+import com.smartpark.backend.model.domain.Tarifa;
+import com.smartpark.backend.repository.TarifaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final ParkingSlotRepository slotRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TarifaRepository tarifaRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -44,6 +47,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             slotRepository.save(new ParkingSlot(null, "M5", "DISPONIBLE", "MOTO"));
             slotRepository.save(new ParkingSlot(null, "M6", "DISPONIBLE", "MOTO"));
 
+        }
+
+        if (tarifaRepository.count() == 0) {
+            System.out.println("💰 Seeder: Configurando tarifas iniciales...");
+
+            tarifaRepository.save(new Tarifa(null, "TARIFA_AUTO", "Costo por hora - Automóvil", 5.0));
+            tarifaRepository.save(new Tarifa(null, "TARIFA_MOTO", "Costo por hora - Motocicleta", 3.0));
+            tarifaRepository.save(new Tarifa(null, "SERVICIO_LAVADO", "Servicio adicional de lavado de vehículo", 20.0));
         }
     }
 }

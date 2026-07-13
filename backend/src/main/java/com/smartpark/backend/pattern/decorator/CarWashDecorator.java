@@ -1,18 +1,15 @@
 package com.smartpark.backend.pattern.decorator;
 
 public class CarWashDecorator extends ServiceDecorator {
+    private final double costoLavado; // ¡NUEVO!
 
-    public CarWashDecorator(IParkingCost parkingCost) {
+    public CarWashDecorator(IParkingCost parkingCost, double costoLavado) {
         super(parkingCost);
+        this.costoLavado = costoLavado;
     }
 
     @Override
     public double getCosto() {
-        return super.getCosto() + 15.00;
-    }
-
-    @Override
-    public String getDescripcion() {
-        return super.getDescripcion() + " + Lavado de Vehículo";
+        return super.getCosto() + costoLavado; // Sumamos la tarifa dinámica
     }
 }

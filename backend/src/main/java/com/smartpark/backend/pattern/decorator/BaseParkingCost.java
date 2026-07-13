@@ -1,32 +1,32 @@
 package com.smartpark.backend.pattern.decorator;
 
-import com.smartpark.backend.model.domain.Auto;
 import com.smartpark.backend.model.domain.Ticket;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class BaseParkingCost implements IParkingCost {
-
     private final Ticket ticket;
+    private final double tarifaPorHora;
 
-    public BaseParkingCost(Ticket ticket) {
+    // Ahora exigimos la tarifa en el constructor
+    public BaseParkingCost(Ticket ticket, double tarifaPorHora) {
         this.ticket = ticket;
+        this.tarifaPorHora = tarifaPorHora;
     }
 
     @Override
     public double getCosto() {
-        LocalDateTime fin = ticket.getHoraSalida() != null ? ticket.getHoraSalida() : LocalDateTime.now();
-        long horas = Duration.between(ticket.getHoraEntrada(), fin).toHours();
-        if (horas == 0) horas = 1; // Cobro mínimo de 1 hora
+        LocalDateTime entrada = ticket.getHoraEntrada();
+        LocalDateTime salida = ticket.getHoraSalida() != null ? ticket.getHoraSalida() : LocalDateTime.now();
 
-        // Si es Auto cobra 5.0, si es Moto (o cualquier otro) cobra 3.0
-        double tarifa = (ticket.getVehiculo() instanceof Auto) ? 5.0 : 3.0;
+        long horas = Duration.between(entrada, salida).toHours();
+        if (horas == 0) horas = 1; // Cobramos mínimo 1 hora
 
-        return horas * tarifa;
+        return horas * tarifaPorHora; // Usamos la tarifa dinámica
     }
 
     @Override
     public String getDescripcion() {
-        return "Costo base de estacionamiento";
+        return "Servicio de Estacionamiento Base";
     }
 }

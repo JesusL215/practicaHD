@@ -9,26 +9,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Service // Le dice a Spring que esta clase es un servicio de lógica de negocio
-@RequiredArgsConstructor // Lombok crea un constructor con los repositorios automáticamente
+@Service
+@RequiredArgsConstructor
 public class ParkingService {
 
     private final VehiculoRepository vehiculoRepository;
     private final TicketRepository ticketRepository;
     private final ParkingSlotRepository parkingSlotRepository;
+    private final TarifaRepository tarifaRepository; // ¡NUEVO: Inyectamos el repo de tarifas!
 
     @Transactional
     public Ticket registrarEntrada(String placa, String tipoVehiculo, Long slotId) throws Exception {
-        // 1. Buscar o crear vehículo
+        // ... (Este metodo se queda exactamente igual que antes) ...
         Vehiculo vehiculo = vehiculoRepository.findByPlaca(placa)
                 .orElseGet(() -> {
                     Vehiculo nuevo = VehiculoFactory.createVehiculo(tipoVehiculo, placa, "N/A");
                     return vehiculoRepository.save(nuevo);
                 });
 
-        // 2. Buscar y ocupar el espacio
         ParkingSlot slot = parkingSlotRepository.findById(slotId)
                 .orElseThrow(() -> new Exception("El slot no existe."));
 
@@ -38,7 +37,6 @@ public class ParkingService {
         slot.setEstado("OCUPADO");
         parkingSlotRepository.save(slot);
 
-        // 3. Crear y guardar el Ticket
         Ticket ticket = new Ticket();
         ticket.setVehiculo(vehiculo);
         ticket.setParkingSlot(slot);
@@ -52,42 +50,39 @@ public class ParkingService {
     public Ticket registrarSalida(Long ticketId, boolean conLavado) throws Exception {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new Exception("Ticket no encontrado."));
+        return procesarSalida(ticket, conLavado);
+    }
 
+    @Transactional
+    public Ticket registrarSalidaPorPlaca(String placa, boolean conLavado) throws Exception {
+        Ticket ticket = ticketRepository.findActiveTicketByPlaca(placa)
+                .orElseThrow(() -> new Exception("No hay ningún ticket activo para la placa: " + placa));
+        return procesarSalida(ticket, conLavado);
+    }
+
+    // --- MAGIA CENTRALIZADA ---
+    private Ticket procesarSalida(Ticket ticket, boolean conLavado) throws Exception {
         if ("PAGADO".equals(ticket.getEstado())) {
             throw new Exception("El ticket ya fue pagado.");
         }
 
         ticket.setHoraSalida(LocalDateTime.now());
 
-        // --- PATRÓN DECORATOR PARA EL COSTO ---
-        IParkingCost costoFinal = new BaseParkingCost(ticket);
+        // 1. Buscamos la tarifa según el tipo de vehículo
+        String tipoVehiculo = ticket.getVehiculo().getClass().getSimpleName().toUpperCase();
+        String codigoTarifa = "AUTO".equalsIgnoreCase(tipoVehiculo) ? "TARIFA_AUTO" : "TARIFA_MOTO";
+
+        Tarifa tarifaBase = tarifaRepository.findByCodigo(codigoTarifa)
+                .orElseThrow(() -> new Exception("Tarifa base no configurada para: " + tipoVehiculo));
+
+        // 2. Pasamos la tarifa de la BD al Decorator
+        IParkingCost costoFinal = new BaseParkingCost(ticket, tarifaBase.getMonto());
+
+        // 3. Aplicamos el Decorator de Lavado con su tarifa de BD
         if (conLavado) {
-            costoFinal = new CarWashDecorator(costoFinal);
-        }
-
-        ticket.setCostoTotal(costoFinal.getCosto());
-        ticket.setEstado("PAGADO");
-
-        // Liberar el espacio
-        ParkingSlot slot = ticket.getParkingSlot();
-        slot.setEstado("DISPONIBLE");
-        parkingSlotRepository.save(slot);
-
-        return ticketRepository.save(ticket);
-    }
-
-    @Transactional
-    public Ticket registrarSalidaPorPlaca(String placa, boolean conLavado) throws Exception {
-        // 1. Buscamos el ticket activo por la placa del vehículo
-        Ticket ticket = ticketRepository.findActiveTicketByPlaca(placa)
-                .orElseThrow(() -> new Exception("No hay ningún ticket activo para la placa: " + placa));
-
-        // 2. Aplicamos exactamente la misma lógica de cobro y liberación
-        ticket.setHoraSalida(LocalDateTime.now());
-
-        IParkingCost costoFinal = new BaseParkingCost(ticket);
-        if (conLavado) {
-            costoFinal = new CarWashDecorator(costoFinal);
+            Tarifa tarifaLavado = tarifaRepository.findByCodigo("SERVICIO_LAVADO")
+                    .orElseThrow(() -> new Exception("Tarifa de lavado no configurada."));
+            costoFinal = new CarWashDecorator(costoFinal, tarifaLavado.getMonto());
         }
 
         ticket.setCostoTotal(costoFinal.getCosto());
