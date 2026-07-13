@@ -1,7 +1,14 @@
 package com.smartpark.backend.service;
 
-import com.lowagie.text.*;
-import com.lowagie.text.pdf.PdfWriter;
+// ¡AQUÍ ESTÁ LA MAGIA! Todas las importaciones actualizadas a OpenPDF 3+
+import org.openpdf.text.Document;
+import org.openpdf.text.Element;
+import org.openpdf.text.Font;
+import org.openpdf.text.FontFactory;
+import org.openpdf.text.PageSize;
+import org.openpdf.text.Paragraph;
+import org.openpdf.text.pdf.PdfWriter;
+
 import com.smartpark.backend.model.domain.Ticket;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +44,7 @@ public class PdfReportService {
             String placaLimpia = sanitizarTexto(ticket.getVehiculo().getPlaca());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-            // CORRECCIÓN: Obtenemos el tipo de vehículo leyendo el nombre de la clase hija
+            // Obtenemos el tipo de vehículo leyendo el nombre de la clase hija
             String tipoVehiculo = ticket.getVehiculo().getClass().getSimpleName().toUpperCase();
 
             // Contenido
