@@ -45,5 +45,13 @@ public class DatabaseSeeder implements CommandLineRunner {
             slotRepository.save(new ParkingSlot(null, "M6", "DISPONIBLE", "MOTO"));
 
         }
+
+        if (tarifaRepository.count() == 0) {
+            System.out.println("💰 Seeder: Configurando tarifas iniciales...");
+
+            tarifaRepository.save(new Tarifa(null, "TARIFA_AUTO", "Costo por hora - Automóvil", 5.0));
+            tarifaRepository.save(new Tarifa(null, "TARIFA_MOTO", "Costo por hora - Motocicleta", 3.0));
+            tarifaRepository.save(new Tarifa(null, "SERVICIO_LAVADO", "Servicio adicional de lavado de vehículo", 20.0));
+        }
     }
 }
