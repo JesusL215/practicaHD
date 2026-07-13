@@ -24,4 +24,9 @@ public class BaseParkingCost implements IParkingCost {
 
         return horas * tarifaPorHora; // Usamos la tarifa dinámica
     }
+
+    @Override
+    public String getDescripcion() {
+        return "Servicio de Estacionamiento Base";
+    }
 }

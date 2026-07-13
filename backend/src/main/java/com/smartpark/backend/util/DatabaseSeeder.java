@@ -4,6 +4,8 @@ import com.smartpark.backend.model.domain.ParkingSlot;
 import com.smartpark.backend.model.domain.Usuario;
 import com.smartpark.backend.repository.ParkingSlotRepository;
 import com.smartpark.backend.repository.UsuarioRepository;
+import com.smartpark.backend.model.domain.Tarifa;
+import com.smartpark.backend.repository.TarifaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final ParkingSlotRepository slotRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TarifaRepository tarifaRepository;
 
     @Override
     public void run(String... args) throws Exception {

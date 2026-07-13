@@ -14,23 +14,26 @@ public class AdminTarifasController {
     @FXML private Label lblServicio;
     @FXML private TextField txtMonto;
     @FXML private Button btnGuardar;
-    @FXML private TableView tablaTarifas;
-    @FXML private TableColumn colCodigo;
-    @FXML private TableColumn colDescripcion;
-    @FXML private TableColumn colMonto;
+    @FXML private TableView<Tarifa> tablaTarifas;
+    @FXML private TableColumn<Tarifa, String> colCodigo;
+    @FXML private TableColumn<Tarifa, String> colDescripcion;
+    @FXML private TableColumn<Tarifa, Number> colMonto;
 
     private final SmartParkApiClient apiClient = new SmartParkApiClient();
     private Tarifa tarifaSeleccionada = null;
 
     @FXML
     public void initialize() {
-        colCodigo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCodigo()));
-        colDescripcion.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDescripcion()));
-        colMonto.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getMonto()));
+        colCodigo.setCellValueFactory((TableColumn.CellDataFeatures<Tarifa, String> c) -> new SimpleStringProperty(c.getValue().getCodigo()));
+        colDescripcion.setCellValueFactory((TableColumn.CellDataFeatures<Tarifa, String> c) -> new SimpleStringProperty(c.getValue().getDescripcion()));
+        colMonto.setCellValueFactory((TableColumn.CellDataFeatures<Tarifa, Number> c) -> new SimpleDoubleProperty(c.getValue().getMonto()));
 
         tablaTarifas.getSelectionModel().selectedItemProperty().addListener((obs, old, nueva) -> {
-            if (nueva != null) seleccionarTarifa(nueva);
+            if (nueva != null) {
+                seleccionarTarifa(nueva);
+            }
         });
+
         cargarDatos();
     }
 

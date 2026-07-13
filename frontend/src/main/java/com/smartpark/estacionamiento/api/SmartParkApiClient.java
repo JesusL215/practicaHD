@@ -5,12 +5,14 @@ import com.google.gson.reflect.TypeToken;
 import com.smartpark.estacionamiento.model.domain.ParkingSlot;
 import com.smartpark.estacionamiento.model.domain.Ticket;
 import com.smartpark.estacionamiento.model.domain.Usuario;
+import com.smartpark.estacionamiento.model.domain.Tarifa;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.lang.reflect.Type;
 
 public class SmartParkApiClient {
 
@@ -119,17 +121,20 @@ public class SmartParkApiClient {
         }
     }
 
-    public List obtenerTodasLasTarifas() throws Exception {
+    public List<Tarifa> obtenerTodasLasTarifas() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/tarifas"))
                 .GET().build();
 
-        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        // Agregamos <String> a HttpResponse
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            Type listType = new TypeToken>(){}.getType();
+            // Sintaxis correcta del TypeToken con <List<Tarifa>>
+            Type listType = new TypeToken<List<Tarifa>>(){}.getType();
             return gson.fromJson(response.body(), listType);
         }
-        throw new Exception(response.body());
+        // Exception requiere un String, concatenamos un mensaje
+        throw new Exception("Error al obtener tarifas: " + response.body());
     }
 
     public Tarifa actualizarTarifa(Long id, Tarifa tarifa) throws Exception {
@@ -139,10 +144,11 @@ public class SmartParkApiClient {
                 .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(tarifa)))
                 .build();
 
-        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        // Agregamos <String> a HttpResponse
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), Tarifa.class);
         }
-        throw new Exception(response.body());
+        throw new Exception("Error al actualizar tarifa: " + response.body());
     }
 }

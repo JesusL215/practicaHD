@@ -21,7 +21,7 @@ public class ParkingService {
 
     @Transactional
     public Ticket registrarEntrada(String placa, String tipoVehiculo, Long slotId) throws Exception {
-        // ... (Este método se queda exactamente igual que antes) ...
+        // ... (Este metodo se queda exactamente igual que antes) ...
         Vehiculo vehiculo = vehiculoRepository.findByPlaca(placa)
                 .orElseGet(() -> {
                     Vehiculo nuevo = VehiculoFactory.createVehiculo(tipoVehiculo, placa, "N/A");
@@ -69,7 +69,7 @@ public class ParkingService {
         ticket.setHoraSalida(LocalDateTime.now());
 
         // 1. Buscamos la tarifa según el tipo de vehículo
-        String tipoVehiculo = ticket.getVehiculo().getTipo(); // "AUTO" o "MOTO"
+        String tipoVehiculo = ticket.getVehiculo().getClass().getSimpleName().toUpperCase();
         String codigoTarifa = "AUTO".equalsIgnoreCase(tipoVehiculo) ? "TARIFA_AUTO" : "TARIFA_MOTO";
 
         Tarifa tarifaBase = tarifaRepository.findByCodigo(codigoTarifa)
