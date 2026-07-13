@@ -94,7 +94,8 @@ public class TicketController {
     }
 
     @GetMapping("/reportes/dashboard")
-    public ResponseEntity<ReporteDashboardDTO> obtenerDatosDashboard() {
-        return ResponseEntity.ok(ticketService.generarDatosDashboard());
+    public ResponseEntity obtenerDatosDashboard(
+            @RequestParam(required = false) String fechaFiltro) {
+        return ResponseEntity.ok(ticketService.generarDatosDashboard(fechaFiltro));
     }
 }

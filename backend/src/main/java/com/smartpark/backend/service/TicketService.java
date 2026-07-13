@@ -9,6 +9,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.util.Comparator;
 
 @Service
 public class TicketService {
@@ -19,26 +21,71 @@ public class TicketService {
         this.ticketRepository = ticketRepository;
     }
 
-    public ReporteDashboardDTO generarDatosDashboard() {
+    public ReporteDashboardDTO generarDatosDashboard(String fechaFiltro) {
+        List todosLosTickets = ticketRepository.findAll();
+        LocalDate hoy = LocalDate.now();
+        DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatterHora = DateTimeFormatter.ofPattern("HH:mm");
 
-        List<Ticket> ticketsPagados = ticketRepository.findAll().stream()
+        ReporteDashboardDTO dto = new ReporteDashboardDTO();
+
+        // 1. Calcular KPIs
+        int ingresadosHoy = 0;
+        int estacionados = 0;
+        double ingresosHoy = 0.0;
+        double ingresosMes = 0.0;
+
+        for (Ticket t : todosLosTickets) {
+            if (t.getHoraEntrada().toLocalDate().isEqual(hoy)) ingresadosHoy++;
+            if ("ACTIVO".equals(t.getEstado())) estacionados++;
+
+            if ("PAGADO".equals(t.getEstado()) && t.getHoraSalida() != null) {
+                if (t.getHoraSalida().toLocalDate().isEqual(hoy)) ingresosHoy += t.getCostoTotal();
+                if (t.getHoraSalida().toLocalDate().getMonth() == hoy.getMonth()) ingresosMes += t.getCostoTotal();
+            }
+        }
+
+        dto.setVehiculosIngresadosHoy(ingresadosHoy);
+        dto.setVehiculosEstacionados(estacionados);
+        dto.setEspaciosLibres(50 - estacionados); // Asumiendo 50 espacios totales, ajusta según tu BD
+        dto.setIngresosHoy(ingresosHoy);
+        dto.setIngresosMes(ingresosMes);
+
+        // 2. Gráficos (Filtramos solo los pagados para ingresos)
+        List ticketsPagados = todosLosTickets.stream()
                 .filter(t -> "PAGADO".equals(t.getEstado()))
                 .collect(Collectors.toList());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        Map<String, Double> porDia = ticketsPagados.stream()
+        dto.setIngresosPorDia(ticketsPagados.stream()
                 .collect(Collectors.groupingBy(
-                        t -> t.getHoraSalida().format(formatter),
-                        Collectors.summingDouble(Ticket::getCostoTotal)
-                ));
+                        t -> t.getHoraSalida().format(formatterFecha),
+                        Collectors.summingDouble(Ticket::getCostoTotal))));
 
-        Map<String, Double> porTipo = ticketsPagados.stream()
+        dto.setIngresosPorTipoVehiculo(ticketsPagados.stream()
                 .collect(Collectors.groupingBy(
                         t -> t.getVehiculo().getClass().getSimpleName().toUpperCase(),
-                        Collectors.summingDouble(Ticket::getCostoTotal)
-                ));
+                        Collectors.summingDouble(Ticket::getCostoTotal))));
 
-        return new ReporteDashboardDTO(porDia, porTipo);
+        dto.setHorasPico(todosLosTickets.stream()
+                .collect(Collectors.groupingBy(
+                        t -> t.getHoraEntrada().getHour() + ":00",
+                        Collectors.summingInt(e -> 1))));
+
+        // 3. Tabla de Movimientos Recientes (Últimos 15)
+        List movimientos = todosLosTickets.stream()
+                .sorted(Comparator.comparing(Ticket::getHoraEntrada).reversed())
+                .limit(15)
+                .map(t -> new MovimientoDTO(
+                        t.getHoraEntrada().format(formatterFecha),
+                        t.getHoraEntrada().format(formatterHora),
+                        t.getVehiculo().getPlaca(),
+                        t.getVehiculo().getClass().getSimpleName().toUpperCase(),
+                        t.getEstado(),
+                        t.getCostoTotal() != null ? t.getCostoTotal() : 0.0
+                )).collect(Collectors.toList());
+
+        dto.setMovimientosRecientes(movimientos);
+
+        return dto;
     }
 }
