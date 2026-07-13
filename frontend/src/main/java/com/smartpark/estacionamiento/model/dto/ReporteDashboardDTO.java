@@ -1,34 +1,31 @@
 package com.smartpark.estacionamiento.model.dto;
 
+import java.util.List;
 import java.util.Map;
 
 public class ReporteDashboardDTO {
 
-    // CORRECCIÓN: Aquí es donde faltaban los tipos <String, Double>
-    private Map<String, Double> ingresosPorDia;
-    private Map<String, Double> ingresosPorTipoVehiculo;
+    private int vehiculosIngresadosHoy;
+    private int vehiculosEstacionados;
+    private int espaciosLibres;
+    private double ingresosHoy;
+    private double ingresosMes;
 
-    public ReporteDashboardDTO() {
-    }
+    private Map ingresosPorDia;
+    private Map ingresosPorTipoVehiculo;
+    private Map horasPico;
 
-    public ReporteDashboardDTO(Map<String, Double> ingresosPorDia, Map<String, Double> ingresosPorTipoVehiculo) {
-        this.ingresosPorDia = ingresosPorDia;
-        this.ingresosPorTipoVehiculo = ingresosPorTipoVehiculo;
-    }
+    private List movimientosRecientes;
 
-    public Map<String, Double> getIngresosPorDia() {
-        return ingresosPorDia;
-    }
+    public ReporteDashboardDTO() {}
 
-    public void setIngresosPorDia(Map<String, Double> ingresosPorDia) {
-        this.ingresosPorDia = ingresosPorDia;
-    }
-
-    public Map<String, Double> getIngresosPorTipoVehiculo() {
-        return ingresosPorTipoVehiculo;
-    }
-
-    public void setIngresosPorTipoVehiculo(Map<String, Double> ingresosPorTipoVehiculo) {
-        this.ingresosPorTipoVehiculo = ingresosPorTipoVehiculo;
-    }
+    public int getVehiculosIngresadosHoy() { return vehiculosIngresadosHoy; }
+    public int getVehiculosEstacionados() { return vehiculosEstacionados; }
+    public int getEspaciosLibres() { return espaciosLibres; }
+    public double getIngresosHoy() { return ingresosHoy; }
+    public double getIngresosMes() { return ingresosMes; }
+    public Map getIngresosPorDia() { return ingresosPorDia; }
+    public Map getIngresosPorTipoVehiculo() { return ingresosPorTipoVehiculo; }
+    public Map getHorasPico() { return horasPico; }
+    public List getMovimientosRecientes() { return movimientosRecientes; }
 }

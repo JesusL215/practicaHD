@@ -1,16 +1,16 @@
 package com.smartpark.backend.service;
 
 import com.smartpark.backend.model.domain.Ticket;
+import com.smartpark.backend.model.dto.MovimientoDTO; // <-- Importación añadida
 import com.smartpark.backend.model.dto.ReporteDashboardDTO;
 import com.smartpark.backend.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
@@ -22,7 +22,10 @@ public class TicketService {
     }
 
     public ReporteDashboardDTO generarDatosDashboard(String fechaFiltro) {
-        List todosLosTickets = ticketRepository.findAll();
+
+        // CORRECCIÓN 1: Aquí debe decir exactamente List<Ticket>
+        List<Ticket> todosLosTickets = ticketRepository.findAll();
+
         LocalDate hoy = LocalDate.now();
         DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatterHora = DateTimeFormatter.ofPattern("HH:mm");
@@ -47,12 +50,13 @@ public class TicketService {
 
         dto.setVehiculosIngresadosHoy(ingresadosHoy);
         dto.setVehiculosEstacionados(estacionados);
-        dto.setEspaciosLibres(50 - estacionados); // Asumiendo 50 espacios totales, ajusta según tu BD
+        dto.setEspaciosLibres(50 - estacionados);
         dto.setIngresosHoy(ingresosHoy);
         dto.setIngresosMes(ingresosMes);
 
         // 2. Gráficos (Filtramos solo los pagados para ingresos)
-        List ticketsPagados = todosLosTickets.stream()
+        // CORRECCIÓN 2: Aquí debe decir exactamente List<Ticket>
+        List<Ticket> ticketsPagados = todosLosTickets.stream()
                 .filter(t -> "PAGADO".equals(t.getEstado()))
                 .collect(Collectors.toList());
 
@@ -72,7 +76,8 @@ public class TicketService {
                         Collectors.summingInt(e -> 1))));
 
         // 3. Tabla de Movimientos Recientes (Últimos 15)
-        List movimientos = todosLosTickets.stream()
+        // CORRECCIÓN 3: Aquí debe decir exactamente List<MovimientoDTO>
+        List<MovimientoDTO> movimientos = todosLosTickets.stream()
                 .sorted(Comparator.comparing(Ticket::getHoraEntrada).reversed())
                 .limit(15)
                 .map(t -> new MovimientoDTO(

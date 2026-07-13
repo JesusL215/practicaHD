@@ -1,27 +1,56 @@
 package com.smartpark.estacionamiento.controller;
 
 import com.smartpark.estacionamiento.api.SmartParkApiClient;
+import com.smartpark.estacionamiento.model.dto.MovimientoDTO;
 import com.smartpark.estacionamiento.model.dto.ReporteDashboardDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.Map;
 
 public class AdminDashboardAnaliticoController {
 
-    // CORRECCIÓN: Tipamos el BarChart
-    @FXML private BarChart<String, Number> ingresosBarChart;
+    @FXML private Label lblIngresosHoy;
+    @FXML private Label lblIngresadosHoy;
+    @FXML private Label lblEstacionados;
+    @FXML private Label lblLibres;
+
+    // IMPORTANTE: Tipos genéricos  en los gráficos
+    @FXML private BarChart ingresosBarChart;
     @FXML private PieChart tipoVehiculoPieChart;
+    @FXML private BarChart horasPicoBarChart;
+
+    // IMPORTANTE: Tipos genéricos  en la tabla
+    @FXML private TableView movimientosTable;
+    @FXML private TableColumn colFecha;
+    @FXML private TableColumn colHora;
+    @FXML private TableColumn colPlaca;
+    @FXML private TableColumn colTipo;
+    @FXML private TableColumn colEstado;
+    @FXML private TableColumn colMonto;
+
+    @FXML private DatePicker fechaInicioPicker;
+    @FXML private DatePicker fechaFinPicker;
+    @FXML private ComboBox tipoVehiculoCombo;
 
     private SmartParkApiClient apiClient;
 
     @FXML
     public void initialize() {
         this.apiClient = new SmartParkApiClient();
+
+        colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
+        colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
+        colPlaca.setCellValueFactory(new PropertyValueFactory<>("placa"));
+        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
+        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+        colMonto.setCellValueFactory(new PropertyValueFactory<>("montoPagado"));
+
         cargarDatos();
     }
 
@@ -30,26 +59,43 @@ public class AdminDashboardAnaliticoController {
         try {
             ReporteDashboardDTO reporte = apiClient.obtenerDatosDashboard();
 
+            lblIngresosHoy.setText(String.format("S/ %.2f", reporte.getIngresosHoy()));
+            lblIngresadosHoy.setText(String.valueOf(reporte.getVehiculosIngresadosHoy()));
+            lblEstacionados.setText(String.valueOf(reporte.getVehiculosEstacionados()));
+            lblLibres.setText(String.valueOf(reporte.getEspaciosLibres()));
+
             ingresosBarChart.getData().clear();
-
-            // CORRECCIÓN: Tipamos la Serie del gráfico
-            XYChart.Series<String, Number> series = new XYChart.Series<>();
-
+            XYChart.Series seriesIngresos = new XYChart.Series<>();
             if (reporte.getIngresosPorDia() != null) {
-                // CORRECCIÓN: Tipamos el Map.Entry
-                for (Map.Entry<String, Double> entry : reporte.getIngresosPorDia().entrySet()) {
-                    series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+                // Tipado correcto en el bucle
+                for (Map.Entry entry : reporte.getIngresosPorDia().entrySet()) {
+                    seriesIngresos.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
-            ingresosBarChart.getData().add(series);
+            ingresosBarChart.getData().add(seriesIngresos);
 
             tipoVehiculoPieChart.getData().clear();
             if (reporte.getIngresosPorTipoVehiculo() != null) {
-                // CORRECCIÓN: Tipamos el Map.Entry
-                for (Map.Entry<String, Double> entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
+                // Tipado correcto en el bucle
+                for (Map.Entry entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
                     String etiqueta = String.format("%s (S/ %.2f)", entry.getKey(), entry.getValue());
                     tipoVehiculoPieChart.getData().add(new PieChart.Data(etiqueta, entry.getValue()));
                 }
+            }
+
+            horasPicoBarChart.getData().clear();
+            XYChart.Series seriesHoras = new XYChart.Series<>();
+            if (reporte.getHorasPico() != null) {
+                // Tipado correcto en el bucle (String, Integer)
+                for (Map.Entry entry : reporte.getHorasPico().entrySet()) {
+                    seriesHoras.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+                }
+            }
+            horasPicoBarChart.getData().add(seriesHoras);
+
+            movimientosTable.getItems().clear();
+            if (reporte.getMovimientosRecientes() != null) {
+                movimientosTable.getItems().addAll(reporte.getMovimientosRecientes());
             }
 
         } catch (Exception e) {
