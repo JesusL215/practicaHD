@@ -151,4 +151,21 @@ public class SmartParkApiClient {
         }
         throw new Exception("Error al actualizar tarifa: " + response.body());
     }
+
+    public byte[] descargarReciboPdf(Long ticketId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/tickets/" + ticketId + "/recibo"))
+                .GET()
+                .build();
+
+        // AQUÍ ESTÁ LA CORRECCIÓN: Agregamos <byte[]> al HttpResponse
+        HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+        if (response.statusCode() == 200) {
+            return response.body(); // Ahora Java sabe que esto es un arreglo de bytes
+        }
+
+        // Si hay error, convertimos explícitamente los bytes a texto
+        throw new Exception("Error al generar PDF: " + new String(response.body()));
+    }
 }

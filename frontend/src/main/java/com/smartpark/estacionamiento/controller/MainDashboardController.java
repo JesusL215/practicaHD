@@ -11,6 +11,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.nio.file.Files;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,20 +29,13 @@ public class MainDashboardController {
     @FXML private HBox vistaDashboard;
     @FXML private Button btnAdministracion;
 
-    // ¡NUEVO: Nuestro único puente de comunicación con el Backend!
     private SmartParkApiClient apiClient;
-
-    // Guardamos los slots en memoria para acceder a sus IDs rápidamente
     private List<ParkingSlot> slotsActuales;
 
     @FXML
     public void initialize() {
-        // 1. Inicializamos el cliente HTTP (¡Adiós a la base de datos local!)
         this.apiClient = new SmartParkApiClient();
-
-        tipoVehiculoComboBox.getItems().addAll("AUTO", "MOTO"); // En mayúscula como en el backend
-
-        // 2. Cargamos los datos iniciales
+        tipoVehiculoComboBox.getItems().addAll("AUTO", "MOTO");
         cargarDatosDesdeBackend();
 
         tipoVehiculoComboBox.getSelectionModel().selectedItemProperty().addListener(
@@ -49,7 +45,6 @@ public class MainDashboardController {
 
     private void cargarDatosDesdeBackend() {
         try {
-            // Hacemos una petición GET a http://localhost:8080/api/slots
             slotsActuales = apiClient.obtenerTodosLosSlots();
             actualizarMapaVisual();
             filtrarSlotsDisponibles(tipoVehiculoComboBox.getValue());
@@ -70,7 +65,6 @@ public class MainDashboardController {
             btn.setPrefSize(80, 60);
             btn.getStyleClass().add("slot-button");
 
-            // Comparamos con el estado que devuelve Spring Boot
             if ("DISPONIBLE".equals(slot.getEstado())) {
                 btn.getStyleClass().add("slot-free");
             } else {
@@ -117,22 +111,17 @@ public class MainDashboardController {
                 mostrarAlerta(Alert.AlertType.ERROR, "Error", "Complete todos los campos."); return;
             }
 
-            // Buscamos el ID del slot seleccionado
             Long slotId = slotsActuales.stream()
                     .filter(s -> s.getNumero().equals(slotNum))
                     .findFirst()
                     .orElseThrow(() -> new Exception("Slot no válido"))
                     .getId();
 
-            // Petición POST al Backend
             apiClient.registrarEntrada(placa, tipo, slotId);
-
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Entrada registrada en el servidor.");
 
             placaTextField.clear();
             tipoVehiculoComboBox.getSelectionModel().clearSelection();
-
-            // Refrescamos el mapa haciendo otra petición GET
             cargarDatosDesdeBackend();
 
         } catch (Exception e) {
@@ -145,23 +134,57 @@ public class MainDashboardController {
         String placa = placaSalidaTextField.getText().trim();
         boolean conLavado = lavadoCheckBox.isSelected();
 
-        if(placa.isEmpty()) {
+        if (placa.isEmpty()) {
             mostrarAlerta(Alert.AlertType.WARNING, "Alerta", "Por favor ingrese la placa del vehículo.");
             return;
         }
 
         try {
             Ticket ticketPagado = apiClient.registrarSalida(placa, conLavado);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Salida Registrada",
+                    "¡Salida registrada exitosamente!\nTotal a pagar: S/ " + ticketPagado.getCostoTotal());
 
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Salida Registrada", "¡Salida registrada exitosamente!\nTotal a pagar: S/ " + ticketPagado.getCostoTotal());
+            preguntarYDescargarPDF(ticketPagado);
 
             placaSalidaTextField.clear();
             lavadoCheckBox.setSelected(false);
-
             cargarDatosDesdeBackend();
 
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de API", e.getMessage());
+        }
+    }
+
+    // --- MÉTODOS PARA EXPORTACIÓN PDF ---
+    private void preguntarYDescargarPDF(Ticket ticket) {
+        Alert confirmar = new Alert(Alert.AlertType.CONFIRMATION,
+                "¿Desea generar y guardar el recibo en PDF?",
+                ButtonType.YES, ButtonType.NO);
+
+        confirmar.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                descargarYGuardarPDF(ticket);
+            }
+        });
+    }
+
+    private void descargarYGuardarPDF(Ticket ticket) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar Recibo PDF");
+        fileChooser.setInitialFileName("Recibo-" + ticket.getVehiculo().getPlaca() + ".pdf");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Documento PDF", "*.pdf"));
+
+        Stage stage = (Stage) placaSalidaTextField.getScene().getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            try {
+                byte[] pdfBytes = apiClient.descargarReciboPdf(ticket.getId());
+                Files.write(file.toPath(), pdfBytes);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Recibo PDF guardado correctamente.");
+            } catch (Exception e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo guardar el PDF: " + e.getMessage());
+            }
         }
     }
 
@@ -183,55 +206,41 @@ public class MainDashboardController {
     @FXML
     private void handleCerrarSesion() {
         try {
-            // Obtenemos la ventana actual
             Stage stage = (Stage) placaTextField.getScene().getWindow();
-
-            // Cargamos la vista del Login
             Parent root = FXMLLoader.load(getClass().getResource("/com/smartpark/estacionamiento/view/Login.fxml"));
-
-            // Volvemos a poner la escena del login en la misma ventana
             stage.setTitle("SmartPark - Iniciar Sesión");
             stage.setScene(new Scene(root, 1000, 650));
-
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo cerrar sesión: " + e.getMessage());
         }
     }
 
-    // 1. Oculta el botón si el usuario NO es ADMIN
     public void inicializarSesion(String rolUsuario) {
         if (!"ADMIN".equalsIgnoreCase(rolUsuario)) {
             btnAdministracion.setVisible(false);
-            btnAdministracion.setManaged(false); // Evita que deje un hueco vacío en el menú
+            btnAdministracion.setManaged(false);
         }
     }
 
-    // 2. Navegar a la vista de Administración
     @FXML
     private void handleVerAdministracion() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/AdminSlots.fxml"));
             Parent adminView = loader.load();
-
-            // Reemplazamos el centro con la nueva pantalla
             mainBorderPane.setCenter(adminView);
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Navegación", "No se pudo cargar el panel: " + e.getMessage());
-            e.printStackTrace(); // Para ver en consola si falta algún import o hay error de FXML
+            e.printStackTrace();
         }
     }
 
-    // 3. Regresar al mapa principal
     @FXML
     private void handleVerDashboard() {
-        // Volvemos a colocar la vista original guardada en memoria
         mainBorderPane.setCenter(vistaDashboard);
-        // Refrescamos los datos por si el Admin agregó un espacio nuevo
         cargarDatosDesdeBackend();
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String contenido) {
-        // Usamos runLater por si la alerta se llama desde un hilo secundario (petición HTTP)
         Platform.runLater(() -> {
             Alert alerta = new Alert(tipo);
             alerta.setTitle(titulo);

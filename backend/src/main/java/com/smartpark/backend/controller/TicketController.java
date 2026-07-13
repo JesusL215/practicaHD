@@ -5,6 +5,10 @@ import com.smartpark.backend.service.ParkingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.smartpark.backend.service.PdfReportService;
+import com.smartpark.backend.repository.TicketRepository;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -12,6 +16,35 @@ import org.springframework.web.bind.annotation.*;
 public class TicketController {
 
     private final ParkingService parkingService;
+    private final TicketRepository ticketRepository;
+    private final PdfReportService pdfReportService;
+
+    @GetMapping("/{id}/recibo")
+    public ResponseEntity descargarRecibo(@PathVariable Long id) {
+        try {
+            Ticket ticket = ticketRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Ticket no encontrado"));
+
+            // Si no está pagado, no deberíamos emitir el recibo final
+            if (!"PAGADO".equals(ticket.getEstado())) {
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            byte[] pdfBytes = pdfReportService.generarReciboPdf(ticket);
+
+            HttpHeaders headers = new HttpHeaders();
+            // Le decimos al navegador/cliente que esto es un archivo descargable
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "Recibo-" + ticket.getVehiculo().getPlaca() + ".pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(null);
+        }
+    }
 
     @PostMapping("/entrada")
     public ResponseEntity<?> registrarEntrada(
