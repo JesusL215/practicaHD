@@ -51,9 +51,7 @@ public class SmartParkApiClient {
         throw new Exception("Error al registrar entrada: " + response.body());
     }
 
-    // Cambiamos Long ticketId por String placa
     public Ticket registrarSalida(String placa, boolean conLavado) throws Exception {
-        // Apuntamos a la nueva ruta /salida/placa/{placa}
         String url = String.format("%s/tickets/salida/placa/%s?conLavado=%b", BASE_URL, placa, conLavado);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -81,6 +79,7 @@ public class SmartParkApiClient {
         }
         throw new Exception("Usuario o contraseña incorrectos");
     }
+
     public ParkingSlot crearSlot(ParkingSlot slot) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/slots"))
@@ -126,14 +125,11 @@ public class SmartParkApiClient {
                 .uri(URI.create(BASE_URL + "/tarifas"))
                 .GET().build();
 
-        // Agregamos <String> a HttpResponse
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            // Sintaxis correcta del TypeToken con <List<Tarifa>>
             Type listType = new TypeToken<List<Tarifa>>(){}.getType();
             return gson.fromJson(response.body(), listType);
         }
-        // Exception requiere un String, concatenamos un mensaje
         throw new Exception("Error al obtener tarifas: " + response.body());
     }
 
@@ -144,7 +140,6 @@ public class SmartParkApiClient {
                 .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(tarifa)))
                 .build();
 
-        // Agregamos <String> a HttpResponse
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), Tarifa.class);
@@ -158,14 +153,11 @@ public class SmartParkApiClient {
                 .GET()
                 .build();
 
-        // AQUÍ ESTÁ LA CORRECCIÓN: Agregamos <byte[]> al HttpResponse
         HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
         if (response.statusCode() == 200) {
-            return response.body(); // Ahora Java sabe que esto es un arreglo de bytes
+            return response.body();
         }
-
-        // Si hay error, convertimos explícitamente los bytes a texto
         throw new Exception("Error al generar PDF: " + new String(response.body()));
     }
 
@@ -176,7 +168,6 @@ public class SmartParkApiClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            // Asegúrate de que los <List<String>> estén bien escritos
             Type listType = new TypeToken<List<String>>(){}.getType();
             return gson.fromJson(response.body(), listType);
         }
@@ -189,8 +180,8 @@ public class SmartParkApiClient {
                 .GET()
                 .build();
 
-        // CORRECCIÓN: Agregamos  aquí
-        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        // CORRECCIÓN: Se agregó <String> a HttpResponse
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), ReporteDashboardDTO.class);

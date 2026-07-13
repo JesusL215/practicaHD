@@ -10,34 +10,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service // Esto le dice a Spring Boot que cree y gestione esta clase
+@Service
 public class TicketService {
 
     private final TicketRepository ticketRepository;
 
-    // Inyectamos el repositorio a través del constructor
     public TicketService(TicketRepository ticketRepository) {
         this.ticketRepository = ticketRepository;
     }
 
     public ReporteDashboardDTO generarDatosDashboard() {
-        // Agregamos  a la lista
-        List ticketsPagados = ticketRepository.findAll().stream()
+
+        List<Ticket> ticketsPagados = ticketRepository.findAll().stream()
                 .filter(t -> "PAGADO".equals(t.getEstado()))
                 .collect(Collectors.toList());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        // Agregamos  a los Mapas
-        Map porDia = ticketsPagados.stream()
+        Map<String, Double> porDia = ticketsPagados.stream()
                 .collect(Collectors.groupingBy(
                         t -> t.getHoraSalida().format(formatter),
                         Collectors.summingDouble(Ticket::getCostoTotal)
                 ));
 
-        Map porTipo = ticketsPagados.stream()
+        Map<String, Double> porTipo = ticketsPagados.stream()
                 .collect(Collectors.groupingBy(
-                        t -> t.getVehiculo().getTipoVehiculo(),
+                        t -> t.getVehiculo().getClass().getSimpleName().toUpperCase(),
                         Collectors.summingDouble(Ticket::getCostoTotal)
                 ));
 
