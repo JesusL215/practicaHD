@@ -37,10 +37,13 @@ public class PdfReportService {
             String placaLimpia = sanitizarTexto(ticket.getVehiculo().getPlaca());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+            // CORRECCIÓN: Obtenemos el tipo de vehículo leyendo el nombre de la clase hija
+            String tipoVehiculo = ticket.getVehiculo().getClass().getSimpleName().toUpperCase();
+
             // Contenido
             document.add(new Paragraph("ID Ticket: " + ticket.getId(), TEXTO_FONT));
             document.add(new Paragraph("Placa: " + placaLimpia, BOLD_FONT));
-            document.add(new Paragraph("Tipo de Vehículo: " + ticket.getVehiculo().getTipoVehiculo(), TEXTO_FONT));
+            document.add(new Paragraph("Tipo de Vehículo: " + tipoVehiculo, TEXTO_FONT));
             document.add(new Paragraph("Espacio: " + ticket.getParkingSlot().getNumero(), TEXTO_FONT));
             document.add(new Paragraph("Hora Entrada: " + ticket.getHoraEntrada().format(formatter), TEXTO_FONT));
             document.add(new Paragraph("Hora Salida: " + ticket.getHoraSalida().format(formatter), TEXTO_FONT));

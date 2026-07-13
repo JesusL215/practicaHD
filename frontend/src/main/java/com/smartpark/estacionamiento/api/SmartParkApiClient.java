@@ -158,14 +158,14 @@ public class SmartParkApiClient {
                 .GET()
                 .build();
 
-        // IMPORTANTE: Pedimos los datos como un arreglo de bytes (ofByteArray)
-        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+        // AQUÍ ESTÁ LA CORRECCIÓN: Agregamos <byte[]> al HttpResponse
+        HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
         if (response.statusCode() == 200) {
-            return response.body();
+            return response.body(); // Ahora Java sabe que esto es un arreglo de bytes
         }
 
-        // Si hay error, lo convertimos a texto para ver qué pasó
+        // Si hay error, convertimos explícitamente los bytes a texto
         throw new Exception("Error al generar PDF: " + new String(response.body()));
     }
 }
