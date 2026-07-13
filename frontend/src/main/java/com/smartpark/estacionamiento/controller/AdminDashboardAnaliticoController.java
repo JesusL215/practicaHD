@@ -13,7 +13,8 @@ import java.util.Map;
 
 public class AdminDashboardAnaliticoController {
 
-    @FXML private BarChart ingresosBarChart;
+    // CORRECCIÓN: Tipamos el BarChart
+    @FXML private BarChart<String, Number> ingresosBarChart;
     @FXML private PieChart tipoVehiculoPieChart;
 
     private SmartParkApiClient apiClient;
@@ -27,24 +28,25 @@ public class AdminDashboardAnaliticoController {
     @FXML
     private void cargarDatos() {
         try {
-            // 1. Pedimos los datos procesados al Backend
             ReporteDashboardDTO reporte = apiClient.obtenerDatosDashboard();
 
-            // 2. Llenar el Gráfico de Barras (Ingresos por Día)
             ingresosBarChart.getData().clear();
-            XYChart.Series series = new XYChart.Series<>();
+
+            // CORRECCIÓN: Tipamos la Serie del gráfico
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
 
             if (reporte.getIngresosPorDia() != null) {
-                for (Map.Entry entry : reporte.getIngresosPorDia().entrySet()) {
+                // CORRECCIÓN: Tipamos el Map.Entry
+                for (Map.Entry<String, Double> entry : reporte.getIngresosPorDia().entrySet()) {
                     series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
             ingresosBarChart.getData().add(series);
 
-            // 3. Llenar el Gráfico de Pastel (Distribución por Vehículo)
             tipoVehiculoPieChart.getData().clear();
             if (reporte.getIngresosPorTipoVehiculo() != null) {
-                for (Map.Entry entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
+                // CORRECCIÓN: Tipamos el Map.Entry
+                for (Map.Entry<String, Double> entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
                     String etiqueta = String.format("%s (S/ %.2f)", entry.getKey(), entry.getValue());
                     tipoVehiculoPieChart.getData().add(new PieChart.Data(etiqueta, entry.getValue()));
                 }

@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -203,7 +204,24 @@ public class MainDashboardController {
 
     @FXML
     private void handleVerReporte() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Próximamente", "Los reportes se generarán en PDF desde el servidor en el Sprint 2.");
+        try {
+            // 1. Cargamos el archivo FXML del Dashboard Analítico
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/AdminDashboardAnalitico.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            // 2. Creamos una nueva ventana emergente
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("SmartPark - Rentabilidad y Analíticas");
+            stage.setScene(new javafx.scene.Scene(root));
+
+            // 3. Bloquea la ventana principal hasta que cierres los gráficos
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta(javafx.scene.control.Alert.AlertType.ERROR, "Error de Interfaz", "No se pudo cargar la pantalla de reportes: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -279,6 +297,24 @@ public class MainDashboardController {
 
         } catch (Exception e) {
             System.err.println("No se pudo renovar el autocompletado: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void mostrarReportes() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/AdminDashboardAnalitico.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("SmartPark - Rentabilidad y Analíticas");
+            stage.setScene(new Scene(root));
+
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Interfaz", "No se pudo cargar la pantalla de reportes: " + e.getMessage());
         }
     }
 

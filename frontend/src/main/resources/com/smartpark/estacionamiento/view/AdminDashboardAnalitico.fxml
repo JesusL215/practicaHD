@@ -1,14 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="20" alignment="CENTER" style="-fx-background-color: #f4f4f9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.AdminDashboardAnaliticoController">
 
-</AnchorPane>
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <Label text="Dashboard Analítico de Rentabilidad" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
+        <!-- Gráfico de Barras -->
+        <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+            <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+            <BarChart fx:id="ingresosBarChart" title="Ingresos Recaudados por Día" legendVisible="false" VBox.vgrow="ALWAYS">
+                <xAxis>
+                    <CategoryAxis label="Fecha de Operación"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Monto Total (S/)"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+
+        <!-- Gráfico de Pastel -->
+        <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+            <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+            <PieChart fx:id="tipoVehiculoPieChart" title="Distribución por Tipo de Vehículo" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </HBox>
+
+    <Button text="Actualizar Métricas" onAction="#cargarDatos" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;"/>
+
+</VBox>
