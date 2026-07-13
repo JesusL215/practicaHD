@@ -3,6 +3,7 @@ package com.smartpark.estacionamiento.controller;
 import com.smartpark.estacionamiento.api.SmartParkApiClient;
 import com.smartpark.estacionamiento.model.domain.ParkingSlot;
 import com.smartpark.estacionamiento.model.domain.Ticket;
+import org.controlsfx.control.textfield.TextFields;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -41,6 +42,8 @@ public class MainDashboardController {
         tipoVehiculoComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (obs, old, newVal) -> filtrarSlotsDisponibles(newVal)
         );
+
+        configurarAutocompletadoPlacas();
     }
 
     private void cargarDatosDesdeBackend() {
@@ -238,6 +241,31 @@ public class MainDashboardController {
     private void handleVerDashboard() {
         mainBorderPane.setCenter(vistaDashboard);
         cargarDatosDesdeBackend();
+    }
+
+    private void configurarAutocompletadoPlacas() {
+        try {
+            // 1. Obtenemos las placas de autos estacionados
+            List<String> placasActivas = apiClient.obtenerPlacasActivas();
+
+            // 2. Vinculamos ControlsFX al TextField de Salida
+            TextFields.bindAutoCompletion(placaSalidaTextField, placasActivas);
+
+            // 3. UX: Forzamos mayúsculas automáticas en ambas cajas de texto
+            placaTextField.textProperty().addListener((obs, oldText, newText) -> {
+                if (newText != null && !newText.equals(newText.toUpperCase())) {
+                    placaTextField.setText(newText.toUpperCase());
+                }
+            });
+            placaSalidaTextField.textProperty().addListener((obs, oldText, newText) -> {
+                if (newText != null && !newText.equals(newText.toUpperCase())) {
+                    placaSalidaTextField.setText(newText.toUpperCase());
+                }
+            });
+
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar el autocompletado: " + e.getMessage());
+        }
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String contenido) {

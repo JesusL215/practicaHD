@@ -46,6 +46,11 @@ public class TicketController {
         }
     }
 
+    @GetMapping("/activos/placas")
+    public ResponseEntity> obtenerPlacasActivas() {
+        return ResponseEntity.ok(ticketRepository.findPlacasActivas());
+    }
+
     @PostMapping("/entrada")
     public ResponseEntity<?> registrarEntrada(
             @RequestParam String placa,
