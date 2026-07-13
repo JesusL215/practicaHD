@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.LoginController" style="-fx-background-color: #f4f4f4;">
+    <padding>
+        <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+    </padding>
+
+    <Label text="SmartPark" textFill="#2c3e50">
+        <font>
+            <Font name="System Bold" size="32.0" />
+        </font>
+    </Label>
+
+    <Label text="Iniciar Sesión" textFill="#7f8c8d">
+        <font>
+            <Font size="16.0" />
+        </font>
+    </Label>
+
+    <TextField fx:id="txtUsername" promptText="Nombre de usuario" style="-fx-pref-width: 250px; -fx-padding: 10px; -fx-font-size: 14px;" />
+
+    <PasswordField fx:id="txtPassword" promptText="Contraseña" style="-fx-pref-width: 250px; -fx-padding: 10px; -fx-font-size: 14px;" />
+
+    <Button text="Ingresar al Sistema" onAction="#handleLogin" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-pref-width: 250px; -fx-padding: 12px; -fx-font-size: 14px; -fx-cursor: hand;" />
+</VBox>

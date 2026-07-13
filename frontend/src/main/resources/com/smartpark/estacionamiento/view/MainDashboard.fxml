@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<!-- Agregamos fx:id="mainBorderPane" para poder cambiar su centro -->
+<BorderPane fx:id="mainBorderPane" xmlns:fx="http://javafx.com/fxml" fx:controller="com.smartpark.estacionamiento.controller.MainDashboardController" prefWidth="1000" prefHeight="650">
+
+    <left>
+        <VBox spacing="15" style="-fx-background-color: #2c3e50; -fx-padding: 20;" prefWidth="220">
+            <Label text="🅿️ SmartPark" textFill="WHITE">
+                <font><Font name="System Bold" size="24"/></font>
+            </Label>
+            <Region prefHeight="30"/>
+
+            <!-- Agregamos onAction="#handleVerDashboard" -->
+            <Button text="📍 Dashboard" onAction="#handleVerDashboard" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-padding: 10 20; -fx-cursor: hand;" prefWidth="200"/>
+            <Button text="📊 Reportes" onAction="#handleVerReporte" style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-font-size: 15px; -fx-alignment: CENTER_LEFT; -fx-padding: 10 20; -fx-cursor: hand;" prefWidth="200"/>
+            <Button text="🕒 Historial" onAction="#handleVerHistorial" style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-font-size: 15px; -fx-alignment: CENTER_LEFT; -fx-padding: 10 20; -fx-cursor: hand;" prefWidth="200"/>
+
+            <!-- Agregamos fx:id y onAction al botón de Administración -->
+            <Button fx:id="btnAdministracion" text="⚙️ Administración" onAction="#handleVerAdministracion" style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-font-size: 15px; -fx-alignment: CENTER_LEFT; -fx-padding: 10 20; -fx-cursor: hand;" prefWidth="200"/>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Button text="🚪 Cerrar Sesión" onAction="#handleCerrarSesion" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" prefWidth="200" prefHeight="40"/>
+        </VBox>
+    </left>
+
+    <center>
+        <!-- Agregamos fx:id="vistaDashboard" para guardarlo en memoria -->
+        <HBox fx:id="vistaDashboard" spacing="20" style="-fx-background-color: #b062e2; -fx-padding: 20;">
+
+            <VBox spacing="20" prefWidth="320">
+                <Label text="Control de Acceso" textFill="WHITE"><font><Font name="System Bold" size="20"/></font></Label>
+
+                <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
+                    <Label text="Registrar Entrada"><font><Font name="System Bold" size="14"/></font></Label>
+                    <TextField fx:id="placaTextField" promptText="Placa del Vehículo"/>
+                    <ComboBox fx:id="tipoVehiculoComboBox" promptText="Tipo de Vehículo" prefWidth="300"/>
+                    <ComboBox fx:id="slotComboBox" promptText="Seleccione Espacio" prefWidth="300"/>
+                    <Button text="Ingresar Vehículo" onAction="#handleRegistrarEntrada" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" prefWidth="300" prefHeight="35"/>
+                </VBox>
+
+                <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
+                    <Label text="Registrar Salida"><font><Font name="System Bold" size="14"/></font></Label>
+                    <TextField fx:id="placaSalidaTextField" promptText="Buscar por Placa"/>
+                    <CheckBox fx:id="lavadoCheckBox" text="Servicio de Lavado (+S/20.00)"/>
+                    <Button text="Cobrar y Salir" onAction="#handleRegistrarSalida" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" prefWidth="300" prefHeight="35"/>
+                </VBox>
+            </VBox>
+
+            <VBox spacing="15" HBox.hgrow="ALWAYS">
+                <Label text="Mapa del Estacionamiento" textFill="WHITE"><font><Font name="System Bold" size="20"/></font></Label>
+                <Label fx:id="statusLabel" text="Conectado al servidor..." textFill="LIGHTGREEN"/>
+
+                <GridPane fx:id="parkingGrid" hgap="10" vgap="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;" VBox.vgrow="ALWAYS">
+                </GridPane>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

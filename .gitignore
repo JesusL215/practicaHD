@@ -1,0 +1,41 @@
+# ==========================================
+# 1. ARCHIVOS DE SEGURIDAD (¡MUY IMPORTANTE!)
+# ==========================================
+.env
+.env.local
+backend/.env
+frontend/.env
+*.properties.local
+*.yml.local
+
+# ==========================================
+# 2. CARPETAS COMPILADAS DE MAVEN
+# ==========================================
+target/
+frontend/target/
+backend/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# ==========================================
+# 3. CONFIGURACIONES DE IDEs (IntelliJ, Eclipse, VSCode)
+# ==========================================
+.idea/
+*.iml
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache
+
+# ==========================================
+# 4. ARCHIVOS DEL SISTEMA OPERATIVO
+# ==========================================
+.DS_Store
+Thumbs.db

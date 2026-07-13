@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<HBox spacing="20" style="-fx-background-color: #b062e2; -fx-padding: 20;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.AdminSlotsController">
+
+    <!-- PANEL IZQUIERDO: Formulario -->
+    <VBox spacing="15" prefWidth="320" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;">
+        <Label text="Gestión de Espacios" textFill="#2c3e50">
+            <font><Font name="System Bold" size="20"/></font>
+        </Label>
+
+        <Label fx:id="lblModo" text="Modo: Creando nuevo espacio" textFill="#7f8c8d" />
+
+        <VBox spacing="5">
+            <Label text="Número de Espacio (Ej. A1, M5)">
+                <font><Font name="System Bold" size="12"/></font>
+            </Label>
+            <TextField fx:id="txtNumero" promptText="Número identificador" />
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Tipo de Vehículo">
+                <font><Font name="System Bold" size="12"/></font>
+            </Label>
+            <ComboBox fx:id="cbTipoVehiculo" prefWidth="300" promptText="Seleccione Tipo" />
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Estado">
+                <font><Font name="System Bold" size="12"/></font>
+            </Label>
+            <ComboBox fx:id="cbEstado" prefWidth="300" promptText="Seleccione Estado" />
+        </VBox>
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <HBox spacing="10">
+            <Button text="Limpiar" onAction="#handleLimpiar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand;" prefWidth="140" />
+            <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardar" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" prefWidth="140" />
+        </HBox>
+        <Button fx:id="btnEliminar" text="Eliminar / Inhabilitar" onAction="#handleEliminar" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;" prefWidth="300" disable="true" />
+    </VBox>
+
+    <!-- PANEL DERECHO: Tabla de Datos -->
+    <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;">
+        <Label text="Directorio de Espacios" textFill="#2c3e50">
+            <font><Font name="System Bold" size="18"/></font>
+        </Label>
+
+        <TableView fx:id="tablaSlots" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50" />
+                <TableColumn fx:id="colNumero" text="Número" prefWidth="100" />
+                <TableColumn fx:id="colTipo" text="Tipo" prefWidth="150" />
+                <TableColumn fx:id="colEstado" text="Estado" prefWidth="150" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+    </VBox>
+</HBox>
