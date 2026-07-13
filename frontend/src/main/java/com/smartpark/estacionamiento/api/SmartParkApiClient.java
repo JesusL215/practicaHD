@@ -6,7 +6,7 @@ import com.smartpark.estacionamiento.model.domain.ParkingSlot;
 import com.smartpark.estacionamiento.model.domain.Ticket;
 import com.smartpark.estacionamiento.model.domain.Usuario;
 import com.smartpark.estacionamiento.model.domain.Tarifa;
-
+import com.smartpark.estacionamiento.model.dto.ReporteDashboardDTO;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -181,5 +181,20 @@ public class SmartParkApiClient {
             return gson.fromJson(response.body(), listType);
         }
         throw new Exception("Error al obtener placas activas");
+    }
+
+    public ReporteDashboardDTO obtenerDatosDashboard() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/tickets/reportes/dashboard"))
+                .GET()
+                .build();
+
+        // CORRECCIÓN: Agregamos  aquí
+        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return gson.fromJson(response.body(), ReporteDashboardDTO.class);
+        }
+        throw new Exception("Error al cargar datos del dashboard: " + response.body());
     }
 }

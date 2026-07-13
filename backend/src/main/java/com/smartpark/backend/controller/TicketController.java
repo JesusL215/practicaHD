@@ -10,15 +10,22 @@ import com.smartpark.backend.repository.TicketRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.util.List;
+import com.smartpark.backend.model.dto.ReporteDashboardDTO;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tickets")
 @RequiredArgsConstructor
 public class TicketController {
 
+    @Autowired
+    private TicketService ticketService;
     private final ParkingService parkingService;
     private final TicketRepository ticketRepository;
     private final PdfReportService pdfReportService;
+
 
     @GetMapping("/{id}/recibo")
     public ResponseEntity descargarRecibo(@PathVariable Long id) {
@@ -87,5 +94,11 @@ public class TicketController {
     @GetMapping("/activos/placas")
     public ResponseEntity<List<String>> obtenerPlacasActivas() {
         return ResponseEntity.ok(ticketRepository.findPlacasActivas());
+    }
+
+    @GetMapping("/reportes/dashboard")
+    public ResponseEntity obtenerDatosDashboard() {
+        // Si usas TicketService:
+        return ResponseEntity.ok(ticketService.generarDatosDashboard());
     }
 }
