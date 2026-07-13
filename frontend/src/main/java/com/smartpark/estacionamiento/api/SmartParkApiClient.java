@@ -118,4 +118,31 @@ public class SmartParkApiClient {
             throw new Exception(response.body());
         }
     }
+
+    public List obtenerTodasLasTarifas() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/tarifas"))
+                .GET().build();
+
+        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            Type listType = new TypeToken>(){}.getType();
+            return gson.fromJson(response.body(), listType);
+        }
+        throw new Exception(response.body());
+    }
+
+    public Tarifa actualizarTarifa(Long id, Tarifa tarifa) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/tarifas/" + id))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(tarifa)))
+                .build();
+
+        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return gson.fromJson(response.body(), Tarifa.class);
+        }
+        throw new Exception(response.body());
+    }
 }
