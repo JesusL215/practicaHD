@@ -4,6 +4,7 @@ import com.smartpark.estacionamiento.api.SmartParkApiClient;
 import com.smartpark.estacionamiento.model.domain.ParkingSlot;
 import com.smartpark.estacionamiento.model.domain.Ticket;
 import org.controlsfx.control.textfield.TextFields;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,18 +33,19 @@ public class MainDashboardController {
 
     private SmartParkApiClient apiClient;
     private List<ParkingSlot> slotsActuales;
+    private AutoCompletionBinding autoCompletionBinding;
 
     @FXML
     public void initialize() {
         this.apiClient = new SmartParkApiClient();
         tipoVehiculoComboBox.getItems().addAll("AUTO", "MOTO");
+
+        configurarFiltrosDeTexto(); // <--- 1. Configuramos las mayúsculas (Una sola vez)
         cargarDatosDesdeBackend();
 
         tipoVehiculoComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (obs, old, newVal) -> filtrarSlotsDisponibles(newVal)
         );
-
-        configurarAutocompletadoPlacas();
     }
 
     private void cargarDatosDesdeBackend() {
@@ -51,6 +53,9 @@ public class MainDashboardController {
             slotsActuales = apiClient.obtenerTodosLosSlots();
             actualizarMapaVisual();
             filtrarSlotsDisponibles(tipoVehiculoComboBox.getValue());
+
+            renovarAutocompletado(); // <--- 2. ¡La magia en tiempo real!
+
             statusLabel.setText("Conectado al servidor Spring Boot. Mapa actualizado.");
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexión", "No se pudo conectar al servidor: " + e.getMessage());
@@ -243,28 +248,37 @@ public class MainDashboardController {
         cargarDatosDesdeBackend();
     }
 
-    private void configurarAutocompletadoPlacas() {
+    //Este método lo llamaremos UNA SOLA VEZ desde initialize()
+    private void configurarFiltrosDeTexto() {
+        // Forzamos mayúsculas automáticas en ambas cajas de texto
+        placaTextField.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText != null && !newText.equals(newText.toUpperCase())) {
+                placaTextField.setText(newText.toUpperCase());
+            }
+        });
+        placaSalidaTextField.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText != null && !newText.equals(newText.toUpperCase())) {
+                placaSalidaTextField.setText(newText.toUpperCase());
+            }
+        });
+    }
+
+    //Este método lo llamaremos TODO EL TIEMPO que cambie el estacionamiento
+    private void renovarAutocompletado() {
         try {
-            // 1. Obtenemos las placas de autos estacionados
-            List<String> placasActivas = apiClient.obtenerPlacasActivas();
+            // Eliminamos la lista vieja de la memoria si existe
+            if (autoCompletionBinding != null) {
+                autoCompletionBinding.dispose();
+            }
 
-            // 2. Vinculamos ControlsFX al TextField de Salida
-            TextFields.bindAutoCompletion(placaSalidaTextField, placasActivas);
+            // Traemos los datos frescos de Spring Boot
+            List placasActivas = apiClient.obtenerPlacasActivas();
 
-            // 3. UX: Forzamos mayúsculas automáticas en ambas cajas de texto
-            placaTextField.textProperty().addListener((obs, oldText, newText) -> {
-                if (newText != null && !newText.equals(newText.toUpperCase())) {
-                    placaTextField.setText(newText.toUpperCase());
-                }
-            });
-            placaSalidaTextField.textProperty().addListener((obs, oldText, newText) -> {
-                if (newText != null && !newText.equals(newText.toUpperCase())) {
-                    placaSalidaTextField.setText(newText.toUpperCase());
-                }
-            });
+            // Creamos un nuevo autocompletado y guardamos su referencia
+            autoCompletionBinding = TextFields.bindAutoCompletion(placaSalidaTextField, placasActivas);
 
         } catch (Exception e) {
-            System.err.println("No se pudo cargar el autocompletado: " + e.getMessage());
+            System.err.println("No se pudo renovar el autocompletado: " + e.getMessage());
         }
     }
 

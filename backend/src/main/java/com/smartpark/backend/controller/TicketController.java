@@ -9,6 +9,7 @@ import com.smartpark.backend.service.PdfReportService;
 import com.smartpark.backend.repository.TicketRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -46,11 +47,6 @@ public class TicketController {
         }
     }
 
-    @GetMapping("/activos/placas")
-    public ResponseEntity> obtenerPlacasActivas() {
-        return ResponseEntity.ok(ticketRepository.findPlacasActivas());
-    }
-
     @PostMapping("/entrada")
     public ResponseEntity<?> registrarEntrada(
             @RequestParam String placa,
@@ -86,5 +82,10 @@ public class TicketController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/activos/placas")
+    public ResponseEntity<List<String>> obtenerPlacasActivas() {
+        return ResponseEntity.ok(ticketRepository.findPlacasActivas());
     }
 }

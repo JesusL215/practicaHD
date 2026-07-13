@@ -169,14 +169,15 @@ public class SmartParkApiClient {
         throw new Exception("Error al generar PDF: " + new String(response.body()));
     }
 
-    public List obtenerPlacasActivas() throws Exception {
+    public List<String> obtenerPlacasActivas() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/tickets/activos/placas"))
                 .GET().build();
 
-        HttpResponse response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            Type listType = new TypeToken>(){}.getType();
+            // Asegúrate de que los <List<String>> estén bien escritos
+            Type listType = new TypeToken<List<String>>(){}.getType();
             return gson.fromJson(response.body(), listType);
         }
         throw new Exception("Error al obtener placas activas");
