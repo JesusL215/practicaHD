@@ -10,6 +10,6 @@ public class CarWashDecorator extends ServiceDecorator {
 
     @Override
     public double getCosto() {
-        return super.getCosto() + costoLavado; // Sumamos la tarifa dinámica
+        return super.getCosto() + costoLavado;
     }
 }

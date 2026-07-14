@@ -54,7 +54,6 @@ public class HistorialController {
         });
 
         colTipo.setCellValueFactory(cellData -> {
-            // Solución: Leemos el tipoVehiculoPermitido directamente desde el ParkingSlot
             if (cellData.getValue().getParkingSlot() != null) {
                 return new SimpleStringProperty(cellData.getValue().getParkingSlot().getTipoVehiculoPermitido());
             }

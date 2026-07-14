@@ -47,7 +47,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             ParkingSlot s11 = new ParkingSlot(null, "M5", "DISPONIBLE", "MOTO", null);
             ParkingSlot s12 = new ParkingSlot(null, "M6", "DISPONIBLE", "MOTO", null);
 
-            // ESTA ES LA LÍNEA CRÍTICA QUE FALTA:
             slotRepository.saveAll(java.util.List.of(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12));
 
             System.out.println("Espacios de estacionamiento creados exitosamente por el Seeder.");

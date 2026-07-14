@@ -20,7 +20,6 @@ public class TarifaController {
         return ResponseEntity.ok(tarifaRepository.findAll());
     }
 
-    // Nota el <?> que permite devolver tanto la Tarifa como un String de error
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarTarifa(@PathVariable Long id, @RequestBody Tarifa detalles) {
         try {

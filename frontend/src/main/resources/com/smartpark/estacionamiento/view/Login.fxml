@@ -2,24 +2,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
 
 <StackPane styleClass="login-bg" stylesheets="@css/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.LoginController">
 
-    <VBox alignment="CENTER" maxWidth="400" maxHeight="450" spacing="25" styleClass="glass-card">
+    <VBox alignment="CENTER" maxWidth="400.0" maxHeight="450.0" spacing="25.0" styleClass="glass-card">
         <padding>
-            <Insets top="40" right="40" bottom="40" left="40"/>
+            <Insets top="40.0" right="40.0" bottom="40.0" left="40.0"/>
         </padding>
 
         <Label text="SmartPark" style="-fx-font-size: 36px; -fx-font-weight: 900; -fx-text-fill: #1E293B;"/>
         <Label text="Iniciar Sesión" style="-fx-font-size: 16px; -fx-text-fill: #64748B;"/>
 
-        <VBox spacing="15">
-            <TextField fx:id="txtUsername" promptText="Nombre de usuario" prefHeight="45"/>
-            <PasswordField fx:id="txtPassword" promptText="Contraseña" prefHeight="45"/>
+        <VBox spacing="15.0">
+            <TextField fx:id="txtUsername" promptText="Nombre de usuario" prefHeight="45.0"/>
+            <PasswordField fx:id="txtPassword" promptText="Contraseña" prefHeight="45.0"/>
         </VBox>
 
-        <Button text="Ingresar al Sistema" onAction="#handleLogin" prefWidth="MAX_VALUE" prefHeight="45" styleClass="btn-primary" defaultButton="true"/>
+        <Button text="INGRESAR" onAction="#handleLogin" prefWidth="320.0" prefHeight="45.0" styleClass="btn-primary" defaultButton="true"/>
 
         <Label fx:id="lblError" textFill="#EF4444" wrapText="true" textAlignment="CENTER"/>
     </VBox>

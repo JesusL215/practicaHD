@@ -5,65 +5,59 @@
 
 <BorderPane fx:id="mainBorderPane" stylesheets="@css/styles.css" styleClass="main-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.MainDashboardController">
 
-    <!-- SIDEBAR (Barra lateral izquierda) -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="240" spacing="10">
+        <VBox styleClass="sidebar" prefWidth="240.0" spacing="10.0">
             <padding>
-                <Insets top="20" bottom="20"/>
+                <Insets top="20.0" bottom="20.0"/>
             </padding>
 
             <Label text="🅿 SmartPark" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 0 0 30 20;"/>
 
-            <Button fx:id="btnDashboard" text="  Dashboard" onAction="#handleVerDashboard" prefWidth="MAX_VALUE" styleClass="nav-button, nav-button-active"/>
-            <Button fx:id="btnReportes" text="  Reportes" onAction="#mostrarReportes" prefWidth="MAX_VALUE" styleClass="nav-button"/>
-            <Button fx:id="btnHistorial" text="  Historial" onAction="#handleVerHistorial" prefWidth="MAX_VALUE" styleClass="nav-button"/>
-            <Button fx:id="btnAdministracion" text="  Administración" onAction="#handleVerAdministracion" prefWidth="MAX_VALUE" styleClass="nav-button"/>
+            <Button fx:id="btnDashboard" text="  Dashboard" onAction="#handleVerDashboard" prefWidth="240.0" styleClass="nav-button, nav-button-active"/>
+            <Button fx:id="btnReportes" text="  Reportes" onAction="#handleVerReporte" prefWidth="240.0" styleClass="nav-button"/>
+            <Button fx:id="btnHistorial" text="  Historial" onAction="#handleVerHistorial" prefWidth="240.0" styleClass="nav-button"/>
+            <Button fx:id="btnAdministracion" text="  Administración" onAction="#handleVerAdministracion" prefWidth="240.0" styleClass="nav-button"/>
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <VBox alignment="CENTER" style="-fx-padding: 20;">
-                <Button text="Cerrar Sesión" onAction="#handleCerrarSesion" prefWidth="MAX_VALUE" styleClass="btn-danger"/>
+            <VBox alignment="CENTER" style="-fx-padding: 20.0;">
+                <Button text="Cerrar Sesión" onAction="#handleCerrarSesion" prefWidth="200.0" styleClass="btn-danger"/>
             </VBox>
         </VBox>
     </left>
 
-    <!-- CONTENIDO CENTRAL (Dashboard Operativo) -->
     <center>
-        <HBox fx:id="vistaDashboard" spacing="30">
-            <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+        <HBox fx:id="vistaDashboard" spacing="30.0">
+            <padding><Insets top="30.0" right="40.0" bottom="30.0" left="40.0"/></padding>
 
-            <!-- PANEL IZQUIERDO: Controles -->
-            <VBox spacing="25" prefWidth="350">
+            <VBox spacing="25.0" prefWidth="350.0">
                 <Label text="Control de Acceso" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
 
-                <!-- Ingreso Card -->
-                <VBox spacing="15" styleClass="fluent-card">
-                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                <VBox spacing="15.0" styleClass="fluent-card">
+                    <padding><Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/></padding>
                     <Label text="Registrar Entrada" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
                     <TextField fx:id="placaTextField" promptText="Placa del Vehículo"/>
-                    <ComboBox fx:id="tipoVehiculoComboBox" promptText="Tipo de Vehículo" prefWidth="MAX_VALUE"/>
-                    <ComboBox fx:id="slotComboBox" promptText="Seleccione Espacio" prefWidth="MAX_VALUE"/>
-                    <Button text="Ingresar Vehículo" onAction="#handleRegistrarEntrada" prefWidth="MAX_VALUE" styleClass="btn-success"/>
+                    <ComboBox fx:id="tipoVehiculoComboBox" promptText="Tipo de Vehículo" prefWidth="310.0"/>
+                    <ComboBox fx:id="slotComboBox" promptText="Seleccione Espacio" prefWidth="310.0"/>
+                    <Button text="Ingresar Vehículo" onAction="#handleRegistrarEntrada" prefWidth="310.0" styleClass="btn-success"/>
                 </VBox>
 
-                <!-- Salida Card -->
-                <VBox spacing="15" styleClass="fluent-card">
-                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                <VBox spacing="15.0" styleClass="fluent-card">
+                    <padding><Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/></padding>
                     <Label text="Registrar Salida" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
                     <TextField fx:id="placaSalidaTextField" promptText="Buscar por Placa"/>
-                    <CheckBox fx:id="lavadoCheckBox" text="Servicio de Lavado (+S/20.00)" style="-fx-text-fill: #475569;"/>
-                    <Button text="Cobrar y Salir" onAction="#handleRegistrarSalida" prefWidth="MAX_VALUE" styleClass="btn-primary"/>
+                    <CheckBox fx:id="lavadoCheckBox" text="Servicio de Lavado (+S/20)" style="-fx-text-fill: #475569;"/>
+                    <Button text="Cobrar y Salir" onAction="#handleRegistrarSalida" prefWidth="310.0" styleClass="btn-primary"/>
                 </VBox>
             </VBox>
 
-            <!-- PANEL DERECHO: Mapa -->
-            <VBox spacing="25" HBox.hgrow="ALWAYS">
+            <VBox spacing="25.0" HBox.hgrow="ALWAYS">
                 <Label text="Mapa del Estacionamiento" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
                 <Label fx:id="statusLabel" text="Conectado al servidor." style="-fx-text-fill: #10B981; -fx-font-weight: bold;"/>
 
                 <VBox styleClass="fluent-card" VBox.vgrow="ALWAYS">
-                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
-                    <GridPane fx:id="parkingGrid" hgap="15" vgap="15" alignment="CENTER"/>
+                    <padding><Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/></padding>
+                    <GridPane fx:id="parkingGrid" hgap="15.0" vgap="15.0" alignment="CENTER"/>
                 </VBox>
             </VBox>
         </HBox>

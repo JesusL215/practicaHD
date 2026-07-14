@@ -10,52 +10,47 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.scene.control.Label;
 
 public class LoginController {
 
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
+    @FXML private Label lblError;
 
     private final SmartParkApiClient apiClient = new SmartParkApiClient();
 
     @FXML
     private void handleLogin() {
+
+        lblError.setText("");
+
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Campos vacíos", "Por favor ingrese su usuario y contraseña.");
+            lblError.setText("Por favor ingrese su usuario y contraseña.");
             return;
         }
 
         try {
-            // 1. Validamos credenciales en el backend
             Usuario usuarioLogueado = apiClient.login(username, password);
 
-            // 2. Obtenemos la ventana (Stage) actual donde está el Login
             Stage stage = (Stage) txtUsername.getScene().getWindow();
 
-            // 3. Cargamos el diseño del Dashboard
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/MainDashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/smartpark/estacionamiento/view/MainDashboard.fxml"));
+
             Parent root = loader.load();
-            // Pasamos el rol al MainDashboardController
+
             MainDashboardController controller = loader.getController();
             controller.inicializarSesion(usuarioLogueado.getRol());
 
-            // 4. Reemplazamos el contenido de la ventana actual SIN cerrarla
             stage.setTitle("SmartPark - Gestión Inteligente (" + usuarioLogueado.getRol() + ")");
             stage.setScene(new Scene(root, 1000, 650));
 
         } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Acceso Denegado", e.getMessage());
+            lblError.setText("Usuario o contraseña incorrectos.");
         }
-    }
-
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }

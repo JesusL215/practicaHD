@@ -72,7 +72,7 @@ public class AdminSlotsController {
 
         lblModo.setText("Modo: Editando espacio ID " + slot.getId());
         btnGuardar.setText("Actualizar");
-        btnEliminar.setDisable(false); // Habilitar botón de eliminar
+        btnEliminar.setDisable(false);
     }
 
     @FXML
@@ -126,7 +126,7 @@ public class AdminSlotsController {
     private void handleEliminar() {
         if (slotSeleccionado == null) return;
 
-        // Buena Práctica UX: Pedir confirmación antes de eliminar
+        // Pedir confirmación antes de eliminar
         Alert confirmar = new Alert(Alert.AlertType.CONFIRMATION,
                 "¿Está seguro de eliminar el espacio " + slotSeleccionado.getNumero() + "?",
                 ButtonType.YES, ButtonType.NO);

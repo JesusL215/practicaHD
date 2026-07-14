@@ -8,7 +8,6 @@ public class BaseParkingCost implements IParkingCost {
     private final Ticket ticket;
     private final double tarifaPorHora;
 
-    // Ahora exigimos la tarifa en el constructor
     public BaseParkingCost(Ticket ticket, double tarifaPorHora) {
         this.ticket = ticket;
         this.tarifaPorHora = tarifaPorHora;
@@ -20,9 +19,9 @@ public class BaseParkingCost implements IParkingCost {
         LocalDateTime salida = ticket.getHoraSalida() != null ? ticket.getHoraSalida() : LocalDateTime.now();
 
         long horas = Duration.between(entrada, salida).toHours();
-        if (horas == 0) horas = 1; // Cobramos mínimo 1 hora
+        if (horas == 0) horas = 1;
 
-        return horas * tarifaPorHora; // Usamos la tarifa dinámica
+        return horas * tarifaPorHora;
     }
 
     @Override

@@ -34,18 +34,17 @@ public class MainDashboardController {
     @FXML private Button btnDashboard;
     @FXML private Button btnReportes;
     @FXML private Button btnHistorial;
-    @FXML private Button btnAdministracion;
 
     private SmartParkApiClient apiClient;
     private List<ParkingSlot> slotsActuales;
-    private AutoCompletionBinding autoCompletionBinding;
+    private AutoCompletionBinding<String> autoCompletionBinding;
 
     @FXML
     public void initialize() {
         this.apiClient = new SmartParkApiClient();
         tipoVehiculoComboBox.getItems().addAll("AUTO", "MOTO");
 
-        configurarFiltrosDeTexto(); // <--- 1. Configuramos las mayúsculas (Una sola vez)
+        configurarFiltrosDeTexto();
         cargarDatosDesdeBackend();
 
         tipoVehiculoComboBox.getSelectionModel().selectedItemProperty().addListener(
@@ -59,7 +58,7 @@ public class MainDashboardController {
             actualizarMapaVisual();
             filtrarSlotsDisponibles(tipoVehiculoComboBox.getValue());
 
-            renovarAutocompletado(); // <--- 2. ¡La magia en tiempo real!
+            renovarAutocompletado();
 
             statusLabel.setText("Conectado al servidor Spring Boot. Mapa actualizado.");
         } catch (Exception e) {
@@ -77,9 +76,9 @@ public class MainDashboardController {
             Button btnSlot = new Button();
             btnSlot.setPrefSize(80, 80); // Tamaño uniforme cuadrado
 
-            // 1. Lógica para decidir qué texto y color poner (EL PASO 2)
+            // 1. Lógica para decidir qué texto y color poner
             String textoBoton = slot.getNumero() + "\n" + slot.getTipoVehiculoPermitido();
-            String estiloCss = "";
+            String estiloCss;
 
             switch (slot.getEstado().toUpperCase()) {
                 case "DISPONIBLE":
@@ -308,7 +307,6 @@ public class MainDashboardController {
         cargarDatosDesdeBackend();
         actualizarBotonActivo(btnDashboard);
     }
-    }
 
     //Este método lo llamaremos UNA SOLA VEZ desde initialize()
     private void configurarFiltrosDeTexto() {
@@ -334,31 +332,13 @@ public class MainDashboardController {
             }
 
             // Traemos los datos frescos de Spring Boot
-            List placasActivas = apiClient.obtenerPlacasActivas();
+            List<String> placasActivas = apiClient.obtenerPlacasActivas();
 
             // Creamos un nuevo autocompletado y guardamos su referencia
             autoCompletionBinding = TextFields.bindAutoCompletion(placaSalidaTextField, placasActivas);
 
         } catch (Exception e) {
             System.err.println("No se pudo renovar el autocompletado: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void mostrarReportes() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/AdminDashboardAnalitico.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("SmartPark - Rentabilidad y Analíticas");
-            stage.setScene(new Scene(root));
-
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Interfaz", "No se pudo cargar la pantalla de reportes: " + e.getMessage());
         }
     }
 

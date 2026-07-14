@@ -17,7 +17,6 @@ public class MovimientoDTO {
         this.montoPagado = montoPagado;
     }
 
-    // JavaFX necesita obligatoriamente estos getters para llenar la tabla
     public String getFecha() { return fecha; }
     public String getHora() { return hora; }
     public String getPlaca() { return placa; }

@@ -5,7 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Font?>
 
-<HBox spacing="20" style="-fx-background-color: #b062e2; -fx-padding: 20;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.AdminSlotsController">
+<HBox spacing="20" style="-fx-background-color: #f8fafc; -fx-padding: 20;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.AdminSlotsController">
 
     <!-- PANEL IZQUIERDO: Formulario -->
     <VBox spacing="15" prefWidth="320" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;">

@@ -18,7 +18,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 2. Permitimos las peticiones temporalmente (para no romper tu JavaFX)
+    // 2. Permitimos las peticiones temporalmente (para no romper JavaFX)
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())

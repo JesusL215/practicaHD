@@ -60,7 +60,6 @@ public class ParkingService {
         return procesarSalida(ticket, conLavado);
     }
 
-    // --- MAGIA CENTRALIZADA ---
     private Ticket procesarSalida(Ticket ticket, boolean conLavado) throws Exception {
         if ("PAGADO".equals(ticket.getEstado())) {
             throw new Exception("El ticket ya fue pagado.");

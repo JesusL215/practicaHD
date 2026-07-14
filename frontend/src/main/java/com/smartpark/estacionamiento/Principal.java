@@ -27,7 +27,6 @@ public class Principal extends Application {
             // 2. Ajustamos el tamaño de la ventana (400x450 es ideal para un login)
             Scene scene = new Scene(root, 1000, 650);
 
-            // 3. Cambiamos el título
             primaryStage.setTitle("SmartPark - Iniciar Sesión");
             primaryStage.setScene(scene);
             primaryStage.show();

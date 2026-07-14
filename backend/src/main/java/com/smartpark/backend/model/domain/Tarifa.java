@@ -16,7 +16,6 @@ public class Tarifa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Ej: "TARIFA_AUTO", "TARIFA_MOTO", "LAVADO_BASICO"
     @Column(unique = true, nullable = false, length = 50)
     private String codigo;
 

@@ -125,7 +125,6 @@ public class AdminDashboardAnaliticoController {
 
         if (file != null) {
             try (PrintWriter writer = new PrintWriter(file)) {
-                // CORRECCIÓN CSV: Cambiamos comas por punto y coma (;)
                 writer.println("Fecha;Hora;Placa;Tipo Vehiculo;Estado;Monto Pagado");
 
                 for (MovimientoDTO mov : movimientosTable.getItems()) {
