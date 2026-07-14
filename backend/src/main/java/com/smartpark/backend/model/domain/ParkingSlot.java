@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.Transient;
 
 @Data
 @NoArgsConstructor
@@ -26,5 +27,16 @@ public class ParkingSlot {
 
     @Column(nullable = false, length = 20)
     private String tipoVehiculoPermitido;
+
+    @Transient
+    private String placaActiva;
+
+    public String getPlacaActiva() {
+        return placaActiva;
+    }
+
+    public void setPlacaActiva(String placaActiva) {
+        this.placaActiva = placaActiva;
+    }
 
 }

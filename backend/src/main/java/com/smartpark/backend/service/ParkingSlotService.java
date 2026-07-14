@@ -1,20 +1,42 @@
 package com.smartpark.backend.service;
 
 import com.smartpark.backend.model.domain.ParkingSlot;
+import com.smartpark.backend.model.domain.Ticket; // <-- Nueva importación
 import com.smartpark.backend.repository.ParkingSlotRepository;
+import com.smartpark.backend.repository.TicketRepository; // <-- Nueva importación
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ParkingSlotService {
 
     private final ParkingSlotRepository slotRepository;
+    private final TicketRepository ticketRepository; // <-- 1. Solo agregamos esto. Lombok hace el resto.
 
     public List<ParkingSlot> obtenerTodos() {
-        return slotRepository.findAll();
+        // 2. Aquí cruzamos los datos antes de devolver la lista
+        List<ParkingSlot> slots = slotRepository.findAll();
+
+        // Buscamos los tickets que están en el estacionamiento ahora mismo
+        List<Ticket> ticketsActivos = ticketRepository.findAll().stream()
+                .filter(t -> "ACTIVO".equals(t.getEstado()))
+                .collect(Collectors.toList());
+
+        // Cruzamos la información
+        for (ParkingSlot slot : slots) {
+            if ("OCUPADO".equals(slot.getEstado())) {
+                ticketsActivos.stream()
+                        .filter(t -> t.getParkingSlot() != null && t.getParkingSlot().getId().equals(slot.getId()))
+                        .findFirst()
+                        .ifPresent(t -> slot.setPlacaActiva(t.getVehiculo().getPlaca()));
+            }
+        }
+
+        return slots;
     }
 
     public ParkingSlot crearEspacio(ParkingSlot slot) {
