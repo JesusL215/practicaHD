@@ -31,6 +31,10 @@ public class MainDashboardController {
     @FXML private BorderPane mainBorderPane;
     @FXML private HBox vistaDashboard;
     @FXML private Button btnAdministracion;
+    @FXML private Button btnDashboard;
+    @FXML private Button btnReportes;
+    @FXML private Button btnHistorial;
+    @FXML private Button btnAdministracion;
 
     private SmartParkApiClient apiClient;
     private List<ParkingSlot> slotsActuales;
@@ -259,10 +263,10 @@ public class MainDashboardController {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/Historial.fxml"));
             javafx.scene.Parent historialView = loader.load();
-            mainBorderPane.setCenter(historialView); // Cargamos la vista en el centro del Dashboard
+            mainBorderPane.setCenter(historialView);
+            actualizarBotonActivo(btnHistorial);
         } catch (Exception e) {
-            mostrarAlerta(javafx.scene.control.Alert.AlertType.ERROR, "Error de Navegación", "No se pudo cargar el historial: " + e.getMessage());
-            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo cargar el historial.");
         }
     }
 
@@ -291,6 +295,7 @@ public class MainDashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/AdminSlots.fxml"));
             Parent adminView = loader.load();
             mainBorderPane.setCenter(adminView);
+            actualizarBotonActivo(btnAdministracion);
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Navegación", "No se pudo cargar el panel: " + e.getMessage());
             e.printStackTrace();
@@ -301,6 +306,8 @@ public class MainDashboardController {
     private void handleVerDashboard() {
         mainBorderPane.setCenter(vistaDashboard);
         cargarDatosDesdeBackend();
+        actualizarBotonActivo(btnDashboard);
+    }
     }
 
     //Este método lo llamaremos UNA SOLA VEZ desde initialize()
@@ -363,5 +370,18 @@ public class MainDashboardController {
             alerta.setContentText(contenido);
             alerta.showAndWait();
         });
+    }
+
+    private void actualizarBotonActivo(Button botonActivo) {
+        // Removemos la clase de todos los botones
+        btnDashboard.getStyleClass().remove("nav-button-active");
+        btnReportes.getStyleClass().remove("nav-button-active");
+        btnHistorial.getStyleClass().remove("nav-button-active");
+        btnAdministracion.getStyleClass().remove("nav-button-active");
+
+        // Se la agregamos solo al seleccionado
+        if (botonActivo != null) {
+            botonActivo.getStyleClass().add("nav-button-active");
+        }
     }
 }
