@@ -10,6 +10,9 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.io.PrintWriter;
 
 import java.util.Map;
 
@@ -20,23 +23,21 @@ public class AdminDashboardAnaliticoController {
     @FXML private Label lblEstacionados;
     @FXML private Label lblLibres;
 
-    // IMPORTANTE: Tipos genéricos  en los gráficos
-    @FXML private BarChart ingresosBarChart;
+    @FXML private BarChart<String, Number> ingresosBarChart;
     @FXML private PieChart tipoVehiculoPieChart;
-    @FXML private BarChart horasPicoBarChart;
+    @FXML private BarChart<String, Number> horasPicoBarChart;
 
-    // IMPORTANTE: Tipos genéricos  en la tabla
-    @FXML private TableView movimientosTable;
-    @FXML private TableColumn colFecha;
-    @FXML private TableColumn colHora;
-    @FXML private TableColumn colPlaca;
-    @FXML private TableColumn colTipo;
-    @FXML private TableColumn colEstado;
-    @FXML private TableColumn colMonto;
+    @FXML private TableView<MovimientoDTO> movimientosTable;
+    @FXML private TableColumn<MovimientoDTO, String> colFecha;
+    @FXML private TableColumn<MovimientoDTO, String> colHora;
+    @FXML private TableColumn<MovimientoDTO, String> colPlaca;
+    @FXML private TableColumn<MovimientoDTO, String> colTipo;
+    @FXML private TableColumn<MovimientoDTO, String> colEstado;
+    @FXML private TableColumn<MovimientoDTO, Double> colMonto;
 
     @FXML private DatePicker fechaInicioPicker;
     @FXML private DatePicker fechaFinPicker;
-    @FXML private ComboBox tipoVehiculoCombo;
+    @FXML private ComboBox<String> tipoVehiculoCombo;
 
     private SmartParkApiClient apiClient;
 
@@ -65,10 +66,10 @@ public class AdminDashboardAnaliticoController {
             lblLibres.setText(String.valueOf(reporte.getEspaciosLibres()));
 
             ingresosBarChart.getData().clear();
-            XYChart.Series seriesIngresos = new XYChart.Series<>();
+
+            XYChart.Series<String, Number> seriesIngresos = new XYChart.Series<>();
             if (reporte.getIngresosPorDia() != null) {
-                // Tipado correcto en el bucle
-                for (Map.Entry entry : reporte.getIngresosPorDia().entrySet()) {
+                for (Map.Entry<String, Double> entry : reporte.getIngresosPorDia().entrySet()) {
                     seriesIngresos.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
@@ -76,18 +77,16 @@ public class AdminDashboardAnaliticoController {
 
             tipoVehiculoPieChart.getData().clear();
             if (reporte.getIngresosPorTipoVehiculo() != null) {
-                // Tipado correcto en el bucle
-                for (Map.Entry entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
+                for (Map.Entry<String, Double> entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
                     String etiqueta = String.format("%s (S/ %.2f)", entry.getKey(), entry.getValue());
                     tipoVehiculoPieChart.getData().add(new PieChart.Data(etiqueta, entry.getValue()));
                 }
             }
 
             horasPicoBarChart.getData().clear();
-            XYChart.Series seriesHoras = new XYChart.Series<>();
+            XYChart.Series<String, Number> seriesHoras = new XYChart.Series<>();
             if (reporte.getHorasPico() != null) {
-                // Tipado correcto en el bucle (String, Integer)
-                for (Map.Entry entry : reporte.getHorasPico().entrySet()) {
+                for (Map.Entry<String, Integer> entry : reporte.getHorasPico().entrySet()) {
                     seriesHoras.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
@@ -103,13 +102,51 @@ public class AdminDashboardAnaliticoController {
         }
     }
 
-    private void mostrarAlerta(String titulo, String contenido) {
+    @FXML
+    private void exportarExcel() {
+        // 1. Configurar la ventana para guardar el archivo
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar Reporte de Movimientos");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo CSV (*.csv)", "*.csv"));
+
+        // Mostrar la ventana y obtener la ruta elegida por el usuario
+        File file = fileChooser.showSaveDialog(movimientosTable.getScene().getWindow());
+
+        if (file != null) {
+            // 2. Escribir los datos en el archivo
+            try (PrintWriter writer = new PrintWriter(file)) {
+                // Escribir los encabezados de las columnas
+                writer.println("Fecha,Hora,Placa,Tipo Vehiculo,Estado,Monto Pagado");
+
+                // Escribir cada fila de la tabla
+                for (MovimientoDTO mov : movimientosTable.getItems()) {
+                    writer.printf("%s,%s,%s,%s,%s,%.2f\n",
+                            mov.getFecha(),
+                            mov.getHora(),
+                            mov.getPlaca(),
+                            mov.getTipoVehiculo(),
+                            mov.getEstado(),
+                            mov.getMontoPagado());
+                }
+
+                mostrarAlerta("Exportación Exitosa", "El reporte se ha guardado correctamente en formato Excel/CSV.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                mostrarAlerta("Error de Exportación", "No se pudo guardar el archivo: " + e.getMessage());
+            }
+        }
+    }
+
+    private void mostrarAlerta(String titulo, String contenido, Alert.AlertType tipo) {
         Platform.runLater(() -> {
-            Alert alerta = new Alert(Alert.AlertType.ERROR);
+            Alert alerta = new Alert(tipo);
             alerta.setTitle(titulo);
             alerta.setHeaderText(null);
             alerta.setContentText(contenido);
             alerta.showAndWait();
         });
+    }
+
+    private void mostrarAlerta(String titulo, String contenido) {
+        mostrarAlerta(titulo, contenido, Alert.AlertType.ERROR);
     }
 }
