@@ -1,9 +1,10 @@
 package com.smartpark.backend.service;
 
 import com.smartpark.backend.model.domain.Ticket;
-import com.smartpark.backend.model.dto.MovimientoDTO; // <-- Importación añadida
+import com.smartpark.backend.model.dto.MovimientoDTO;
 import com.smartpark.backend.model.dto.ReporteDashboardDTO;
 import com.smartpark.backend.repository.TicketRepository;
+import com.smartpark.backend.repository.ParkingSlotRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,16 +17,16 @@ import java.util.stream.Collectors;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final ParkingSlotRepository parkingSlotRepository;
 
-    public TicketService(TicketRepository ticketRepository) {
+    public TicketService(TicketRepository ticketRepository, ParkingSlotRepository parkingSlotRepository) {
         this.ticketRepository = ticketRepository;
+        this.parkingSlotRepository = parkingSlotRepository;
     }
 
     public ReporteDashboardDTO generarDatosDashboard(String fechaFiltro) {
 
-        // CORRECCIÓN 1: Aquí debe decir exactamente List<Ticket>
         List<Ticket> todosLosTickets = ticketRepository.findAll();
-
         LocalDate hoy = LocalDate.now();
         DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatterHora = DateTimeFormatter.ofPattern("HH:mm");
@@ -48,14 +49,13 @@ public class TicketService {
             }
         }
 
+        long totalEspacios = parkingSlotRepository.count();
+
         dto.setVehiculosIngresadosHoy(ingresadosHoy);
         dto.setVehiculosEstacionados(estacionados);
-        dto.setEspaciosLibres(50 - estacionados);
-        dto.setIngresosHoy(ingresosHoy);
+        dto.setEspaciosLibres((int) totalEspacios - estacionados);        dto.setIngresosHoy(ingresosHoy);
         dto.setIngresosMes(ingresosMes);
 
-        // 2. Gráficos (Filtramos solo los pagados para ingresos)
-        // CORRECCIÓN 2: Aquí debe decir exactamente List<Ticket>
         List<Ticket> ticketsPagados = todosLosTickets.stream()
                 .filter(t -> "PAGADO".equals(t.getEstado()))
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class TicketService {
 
         dto.setIngresosPorTipoVehiculo(ticketsPagados.stream()
                 .collect(Collectors.groupingBy(
-                        t -> t.getVehiculo().getClass().getSimpleName().toUpperCase(),
+                        t -> t.getVehiculo().getClass().getSimpleName().split("\\$")[0].toUpperCase(),
                         Collectors.summingDouble(Ticket::getCostoTotal))));
 
         dto.setHorasPico(todosLosTickets.stream()
@@ -75,16 +75,14 @@ public class TicketService {
                         t -> t.getHoraEntrada().getHour() + ":00",
                         Collectors.summingInt(e -> 1))));
 
-        // 3. Tabla de Movimientos Recientes (Últimos 15)
-        // CORRECCIÓN 3: Aquí debe decir exactamente List<MovimientoDTO>
-        List<MovimientoDTO> movimientos = todosLosTickets.stream()
+        List movimientos = todosLosTickets.stream()
                 .sorted(Comparator.comparing(Ticket::getHoraEntrada).reversed())
                 .limit(15)
                 .map(t -> new MovimientoDTO(
                         t.getHoraEntrada().format(formatterFecha),
                         t.getHoraEntrada().format(formatterHora),
                         t.getVehiculo().getPlaca(),
-                        t.getVehiculo().getClass().getSimpleName().toUpperCase(),
+                        t.getVehiculo().getClass().getSimpleName().split("\\$")[0].toUpperCase(), // <-- Magia contra el Proxy
                         t.getEstado(),
                         t.getCostoTotal() != null ? t.getCostoTotal() : 0.0
                 )).collect(Collectors.toList());

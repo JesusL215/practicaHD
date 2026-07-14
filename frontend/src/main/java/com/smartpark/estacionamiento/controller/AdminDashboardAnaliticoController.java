@@ -11,9 +11,10 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+
 import java.io.File;
 import java.io.PrintWriter;
-
+import java.time.LocalDate;
 import java.util.Map;
 
 public class AdminDashboardAnaliticoController {
@@ -23,21 +24,21 @@ public class AdminDashboardAnaliticoController {
     @FXML private Label lblEstacionados;
     @FXML private Label lblLibres;
 
-    @FXML private BarChart<String, Number> ingresosBarChart;
+    @FXML private BarChart ingresosBarChart;
     @FXML private PieChart tipoVehiculoPieChart;
-    @FXML private BarChart<String, Number> horasPicoBarChart;
+    @FXML private BarChart horasPicoBarChart;
 
-    @FXML private TableView<MovimientoDTO> movimientosTable;
-    @FXML private TableColumn<MovimientoDTO, String> colFecha;
-    @FXML private TableColumn<MovimientoDTO, String> colHora;
-    @FXML private TableColumn<MovimientoDTO, String> colPlaca;
-    @FXML private TableColumn<MovimientoDTO, String> colTipo;
-    @FXML private TableColumn<MovimientoDTO, String> colEstado;
-    @FXML private TableColumn<MovimientoDTO, Double> colMonto;
+    @FXML private TableView movimientosTable;
+    @FXML private TableColumn colFecha;
+    @FXML private TableColumn colHora;
+    @FXML private TableColumn colPlaca;
+    @FXML private TableColumn colTipo;
+    @FXML private TableColumn colEstado;
+    @FXML private TableColumn colMonto;
 
     @FXML private DatePicker fechaInicioPicker;
     @FXML private DatePicker fechaFinPicker;
-    @FXML private ComboBox<String> tipoVehiculoCombo;
+    @FXML private ComboBox tipoVehiculoCombo;
 
     private SmartParkApiClient apiClient;
 
@@ -45,6 +46,13 @@ public class AdminDashboardAnaliticoController {
     public void initialize() {
         this.apiClient = new SmartParkApiClient();
 
+        // 1. ACTIVAR COMBOS Y FECHAS POR DEFECTO
+        tipoVehiculoCombo.getItems().addAll("Todos", "AUTO", "MOTO");
+        tipoVehiculoCombo.setValue("Todos");
+        fechaInicioPicker.setValue(LocalDate.now().minusDays(7)); // Últimos 7 días
+        fechaFinPicker.setValue(LocalDate.now());
+
+        // 2. CONFIGURAR TABLA
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
         colPlaca.setCellValueFactory(new PropertyValueFactory<>("placa"));
@@ -58,6 +66,12 @@ public class AdminDashboardAnaliticoController {
     @FXML
     private void cargarDatos() {
         try {
+            // Capturamos visualmente los filtros para la siguiente fase
+            String tipoFiltro = tipoVehiculoCombo.getValue();
+            LocalDate inicio = fechaInicioPicker.getValue();
+            LocalDate fin = fechaFinPicker.getValue();
+            System.out.println("Filtros aplicados en UI -> Tipo: " + tipoFiltro + " | Rango: " + inicio + " a " + fin);
+
             ReporteDashboardDTO reporte = apiClient.obtenerDatosDashboard();
 
             lblIngresosHoy.setText(String.format("S/ %.2f", reporte.getIngresosHoy()));
@@ -66,10 +80,9 @@ public class AdminDashboardAnaliticoController {
             lblLibres.setText(String.valueOf(reporte.getEspaciosLibres()));
 
             ingresosBarChart.getData().clear();
-
-            XYChart.Series<String, Number> seriesIngresos = new XYChart.Series<>();
+            XYChart.Series seriesIngresos = new XYChart.Series<>();
             if (reporte.getIngresosPorDia() != null) {
-                for (Map.Entry<String, Double> entry : reporte.getIngresosPorDia().entrySet()) {
+                for (Map.Entry entry : reporte.getIngresosPorDia().entrySet()) {
                     seriesIngresos.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
@@ -77,16 +90,16 @@ public class AdminDashboardAnaliticoController {
 
             tipoVehiculoPieChart.getData().clear();
             if (reporte.getIngresosPorTipoVehiculo() != null) {
-                for (Map.Entry<String, Double> entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
+                for (Map.Entry entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
                     String etiqueta = String.format("%s (S/ %.2f)", entry.getKey(), entry.getValue());
                     tipoVehiculoPieChart.getData().add(new PieChart.Data(etiqueta, entry.getValue()));
                 }
             }
 
             horasPicoBarChart.getData().clear();
-            XYChart.Series<String, Number> seriesHoras = new XYChart.Series<>();
+            XYChart.Series seriesHoras = new XYChart.Series<>();
             if (reporte.getHorasPico() != null) {
-                for (Map.Entry<String, Integer> entry : reporte.getHorasPico().entrySet()) {
+                for (Map.Entry entry : reporte.getHorasPico().entrySet()) {
                     seriesHoras.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
@@ -104,23 +117,19 @@ public class AdminDashboardAnaliticoController {
 
     @FXML
     private void exportarExcel() {
-        // 1. Configurar la ventana para guardar el archivo
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Guardar Reporte de Movimientos");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo CSV (*.csv)", "*.csv"));
 
-        // Mostrar la ventana y obtener la ruta elegida por el usuario
         File file = fileChooser.showSaveDialog(movimientosTable.getScene().getWindow());
 
         if (file != null) {
-            // 2. Escribir los datos en el archivo
             try (PrintWriter writer = new PrintWriter(file)) {
-                // Escribir los encabezados de las columnas
-                writer.println("Fecha,Hora,Placa,Tipo Vehiculo,Estado,Monto Pagado");
+                // CORRECCIÓN CSV: Cambiamos comas por punto y coma (;)
+                writer.println("Fecha;Hora;Placa;Tipo Vehiculo;Estado;Monto Pagado");
 
-                // Escribir cada fila de la tabla
                 for (MovimientoDTO mov : movimientosTable.getItems()) {
-                    writer.printf("%s,%s,%s,%s,%s,%.2f\n",
+                    writer.printf("%s;%s;%s;%s;%s;%.2f\n",
                             mov.getFecha(),
                             mov.getHora(),
                             mov.getPlaca(),
@@ -129,7 +138,7 @@ public class AdminDashboardAnaliticoController {
                             mov.getMontoPagado());
                 }
 
-                mostrarAlerta("Exportación Exitosa", "El reporte se ha guardado correctamente en formato Excel/CSV.", Alert.AlertType.INFORMATION);
+                mostrarAlerta("Exportación Exitosa", "El reporte se ha guardado correctamente.", Alert.AlertType.INFORMATION);
             } catch (Exception e) {
                 mostrarAlerta("Error de Exportación", "No se pudo guardar el archivo: " + e.getMessage());
             }

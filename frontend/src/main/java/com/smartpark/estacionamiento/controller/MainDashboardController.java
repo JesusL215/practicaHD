@@ -205,18 +205,19 @@ public class MainDashboardController {
     @FXML
     private void handleVerReporte() {
         try {
-            // 1. Cargamos el archivo FXML del Dashboard Analítico
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/AdminDashboardAnalitico.fxml"));
             javafx.scene.Parent root = loader.load();
 
-            // 2. Creamos una nueva ventana emergente
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.setTitle("SmartPark - Rentabilidad y Analíticas");
             stage.setScene(new javafx.scene.Scene(root));
 
-            // 3. Bloquea la ventana principal hasta que cierres los gráficos
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            // CORRECCIÓN: Forzamos el tamaño máximo para que no desborde tu pantalla
+            stage.setWidth(1100);
+            stage.setHeight(700);
+            stage.centerOnScreen();
 
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
