@@ -70,24 +70,54 @@ public class MainDashboardController {
         int row = 0;
 
         for (ParkingSlot slot : slotsActuales) {
-            Button btn = new Button(slot.getNumero() + "\n" + slot.getTipoVehiculoPermitido());
-            btn.setPrefSize(80, 60);
-            btn.getStyleClass().add("slot-button");
+            Button btnSlot = new Button();
+            btnSlot.setPrefSize(80, 80); // Tamaño uniforme cuadrado
 
-            if ("DISPONIBLE".equals(slot.getEstado())) {
-                btn.getStyleClass().add("slot-free");
-            } else {
-                btn.getStyleClass().add("slot-occupied");
+            // 1. Lógica para decidir qué texto y color poner (EL PASO 2)
+            String textoBoton = slot.getNumero() + "\n" + slot.getTipoVehiculoPermitido();
+            String estiloCss = "";
+
+            switch (slot.getEstado().toUpperCase()) {
+                case "DISPONIBLE":
+                    estiloCss = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;";
+                    break;
+
+                case "OCUPADO":
+                    // Si está ocupado, intentamos mostrar la placa. Si no llega, mostramos "OCUPADO"
+                    String textoOcupado = (slot.getPlacaActiva() != null && !slot.getPlacaActiva().isEmpty())
+                            ? slot.getPlacaActiva()
+                            : "OCUPADO";
+                    textoBoton = slot.getNumero() + "\n" + textoOcupado;
+                    estiloCss = "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;";
+                    break;
+
+                case "MANTENIMIENTO":
+                    estiloCss = "-fx-background-color: #f1c40f; -fx-text-fill: #2c3e50; -fx-font-weight: bold; -fx-background-radius: 8;";
+                    textoBoton = slot.getNumero() + "\nEN MANT.";
+                    break;
+
+                case "RESERVADO":
+                    estiloCss = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;";
+                    break;
+
+                default:
+                    estiloCss = "-fx-background-color: #bdc3c7; -fx-text-fill: #2c3e50; -fx-background-radius: 8;";
+                    break;
             }
 
-            btn.setOnAction(e -> {
+            // 2. Aplicamos el texto y el estilo al botón
+            btnSlot.setText(textoBoton);
+            btnSlot.setStyle(estiloCss);
+
+            // 3. Acción al hacer clic en el botón del mapa
+            btnSlot.setOnAction(e -> {
                 if ("DISPONIBLE".equals(slot.getEstado())) {
                     tipoVehiculoComboBox.setValue(slot.getTipoVehiculoPermitido());
                     slotComboBox.setValue(slot.getNumero());
                 }
             });
 
-            parkingGrid.add(btn, col, row);
+            parkingGrid.add(btnSlot, col, row);
             col++;
             if (col > 3) { col = 0; row++; }
         }
@@ -212,7 +242,6 @@ public class MainDashboardController {
             stage.setTitle("SmartPark - Rentabilidad y Analíticas");
             stage.setScene(new javafx.scene.Scene(root));
 
-            // CORRECCIÓN: Forzamos el tamaño máximo para que no desborde tu pantalla
             stage.setWidth(1100);
             stage.setHeight(700);
             stage.centerOnScreen();

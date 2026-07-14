@@ -24,21 +24,21 @@ public class AdminDashboardAnaliticoController {
     @FXML private Label lblEstacionados;
     @FXML private Label lblLibres;
 
-    @FXML private BarChart ingresosBarChart;
+    @FXML private BarChart<String, Number> ingresosBarChart;
     @FXML private PieChart tipoVehiculoPieChart;
-    @FXML private BarChart horasPicoBarChart;
+    @FXML private BarChart<String, Number> horasPicoBarChart;
 
-    @FXML private TableView movimientosTable;
-    @FXML private TableColumn colFecha;
-    @FXML private TableColumn colHora;
-    @FXML private TableColumn colPlaca;
-    @FXML private TableColumn colTipo;
-    @FXML private TableColumn colEstado;
-    @FXML private TableColumn colMonto;
+    @FXML private TableView<MovimientoDTO> movimientosTable;
+    @FXML private TableColumn<MovimientoDTO, String> colFecha;
+    @FXML private TableColumn<MovimientoDTO, String> colHora;
+    @FXML private TableColumn<MovimientoDTO, String> colPlaca;
+    @FXML private TableColumn<MovimientoDTO, String> colTipo;
+    @FXML private TableColumn<MovimientoDTO, String> colEstado;
+    @FXML private TableColumn<MovimientoDTO, Double> colMonto;
 
     @FXML private DatePicker fechaInicioPicker;
     @FXML private DatePicker fechaFinPicker;
-    @FXML private ComboBox tipoVehiculoCombo;
+    @FXML private ComboBox<String> tipoVehiculoCombo;
 
     private SmartParkApiClient apiClient;
 
@@ -80,9 +80,9 @@ public class AdminDashboardAnaliticoController {
             lblLibres.setText(String.valueOf(reporte.getEspaciosLibres()));
 
             ingresosBarChart.getData().clear();
-            XYChart.Series seriesIngresos = new XYChart.Series<>();
+            XYChart.Series<String, Number> seriesIngresos = new XYChart.Series<>();
             if (reporte.getIngresosPorDia() != null) {
-                for (Map.Entry entry : reporte.getIngresosPorDia().entrySet()) {
+                for (Map.Entry<String, Double> entry : reporte.getIngresosPorDia().entrySet()) {
                     seriesIngresos.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }
@@ -90,16 +90,16 @@ public class AdminDashboardAnaliticoController {
 
             tipoVehiculoPieChart.getData().clear();
             if (reporte.getIngresosPorTipoVehiculo() != null) {
-                for (Map.Entry entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
+                for (Map.Entry<String, Double> entry : reporte.getIngresosPorTipoVehiculo().entrySet()) {
                     String etiqueta = String.format("%s (S/ %.2f)", entry.getKey(), entry.getValue());
                     tipoVehiculoPieChart.getData().add(new PieChart.Data(etiqueta, entry.getValue()));
                 }
             }
 
             horasPicoBarChart.getData().clear();
-            XYChart.Series seriesHoras = new XYChart.Series<>();
+            XYChart.Series<String, Number> seriesHoras = new XYChart.Series<>();
             if (reporte.getHorasPico() != null) {
-                for (Map.Entry entry : reporte.getHorasPico().entrySet()) {
+                for (Map.Entry<String, Integer> entry : reporte.getHorasPico().entrySet()) {
                     seriesHoras.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
                 }
             }

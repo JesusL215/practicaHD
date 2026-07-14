@@ -5,6 +5,7 @@ public class ParkingSlot {
     private String numero;
     private String estado;
     private String tipoVehiculoPermitido;
+    private String placaActiva;
 
     // --- Getters y Setters ---
     public Long getId() {
@@ -12,30 +13,43 @@ public class ParkingSlot {
     }
 
     public void setId(Long id) {
+
         this.id = id;
     }
 
     public String getNumero() {
+
         return numero;
     }
 
     public void setNumero(String numero) {
+
         this.numero = numero;
     }
 
     public String getEstado() {
+
         return estado;
     }
 
     public void setEstado(String estado) {
+
         this.estado = estado;
     }
 
     public String getTipoVehiculoPermitido() {
+
         return tipoVehiculoPermitido;
     }
 
     public void setTipoVehiculoPermitido(String tipoVehiculoPermitido) {
         this.tipoVehiculoPermitido = tipoVehiculoPermitido;
+    }
+    public String getPlacaActiva() {
+        return placaActiva;
+    }
+
+    public void setPlacaActiva(String placaActiva) {
+        this.placaActiva = placaActiva;
     }
 }
