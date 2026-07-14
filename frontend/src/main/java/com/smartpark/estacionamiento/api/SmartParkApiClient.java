@@ -188,18 +188,22 @@ public class SmartParkApiClient {
         throw new Exception("Error al cargar datos del dashboard: " + response.body());
     }
 
-    public List<String> obtenerTodosLosTickets() throws Exception {
-        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/tickets"))
+    public List<Ticket> obtenerTodosLosTickets() throws Exception {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/tickets"))
                 .GET()
                 .build();
 
-        java.net.http.HttpResponse response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response =
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), new com.fasterxml.jackson.core.type.TypeReference>() {});
-        } else {
-            throw new Exception("Error al obtener el historial de tickets. Código: " + response.statusCode());
+            Type listType = new TypeToken<List<Ticket>>() {}.getType();
+            return gson.fromJson(response.body(), listType);
         }
+
+        throw new Exception("Error al obtener el historial de tickets: "
+                + response.body());
     }
 }

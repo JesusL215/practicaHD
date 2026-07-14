@@ -20,19 +20,19 @@ public class HistorialController {
     @FXML private TextField txtBuscarPlaca;
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
-    @FXML private ComboBox comboEstado;
+    @FXML private ComboBox<String> comboEstado;
 
-    @FXML private TableView tablaHistorial;
-    @FXML private TableColumn colId;
-    @FXML private TableColumn colPlaca;
-    @FXML private TableColumn colTipo;
-    @FXML private TableColumn colEntrada;
-    @FXML private TableColumn colSalida;
-    @FXML private TableColumn colEstado;
-    @FXML private TableColumn colMonto;
+    @FXML private TableView<Ticket> tablaHistorial;
+    @FXML private TableColumn<Ticket, String> colId;
+    @FXML private TableColumn<Ticket, String> colPlaca;
+    @FXML private TableColumn<Ticket, String> colTipo;
+    @FXML private TableColumn<Ticket, String> colEntrada;
+    @FXML private TableColumn<Ticket, String> colSalida;
+    @FXML private TableColumn<Ticket, String> colEstado;
+    @FXML private TableColumn<Ticket, Double> colMonto;
 
     private SmartParkApiClient apiClient;
-    private ObservableList listaTicketsMaster = FXCollections.observableArrayList();
+    private ObservableList<Ticket> listaTicketsMaster = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -85,7 +85,7 @@ public class HistorialController {
     private void cargarDatos() {
         try {
             // Obtenemos todos los tickets del servidor
-            List tickets = apiClient.obtenerTodosLosTickets();
+            List<Ticket> tickets = apiClient.obtenerTodosLosTickets();
             listaTicketsMaster.setAll(tickets);
             tablaHistorial.setItems(listaTicketsMaster);
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class HistorialController {
         String estado = comboEstado.getValue();
 
         // Filtrado dinámico en memoria (muy rápido)
-        List filtrados = listaTicketsMaster.stream().filter(t -> {
+        List<Ticket> filtrados = listaTicketsMaster.stream().filter(t -> {
             boolean coincidePlaca = placaBuscar.isEmpty() || (t.getVehiculo() != null && t.getVehiculo().getPlaca().contains(placaBuscar));
             boolean coincideEstado = "TODOS".equals(estado) || estado.equals(t.getEstado());
             boolean coincideInicio = inicio == null || (t.getHoraEntrada() != null && !t.getHoraEntrada().toLocalDate().isBefore(inicio));
