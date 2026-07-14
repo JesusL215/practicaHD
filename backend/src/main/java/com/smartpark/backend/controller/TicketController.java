@@ -94,8 +94,14 @@ public class TicketController {
     }
 
     @GetMapping("/reportes/dashboard")
-    public ResponseEntity obtenerDatosDashboard(
+    public ResponseEntity<ReporteDashboardDTO> obtenerDatosDashboard(
             @RequestParam(required = false) String fechaFiltro) {
         return ResponseEntity.ok(ticketService.generarDatosDashboard(fechaFiltro));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Ticket>> obtenerTodosLosTickets() {
+        // Usamos el servicio para devolver todos los tickets de la base de datos
+        return ResponseEntity.ok(ticketService.obtenerTodos());
     }
 }

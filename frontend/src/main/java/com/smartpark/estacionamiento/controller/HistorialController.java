@@ -54,10 +54,9 @@ public class HistorialController {
         });
 
         colTipo.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getVehiculo() != null) {
-                // Limpiamos el Proxy por si llega desde el backend
-                String tipo = cellData.getValue().getVehiculo().getClass().getSimpleName().split("\\$")[0].toUpperCase();
-                return new SimpleStringProperty(tipo);
+            // Solución: Leemos el tipoVehiculoPermitido directamente desde el ParkingSlot
+            if (cellData.getValue().getParkingSlot() != null) {
+                return new SimpleStringProperty(cellData.getValue().getParkingSlot().getTipoVehiculoPermitido());
             }
             return new SimpleStringProperty("N/A");
         });
@@ -102,7 +101,7 @@ public class HistorialController {
         LocalDate fin = dateFin.getValue();
         String estado = comboEstado.getValue();
 
-        List filtrados = listaTicketsMaster.stream().filter(t -> {
+        List<Ticket> filtrados = listaTicketsMaster.stream().filter(t -> {
             boolean coincidePlaca = placaBuscar.isEmpty() || (t.getVehiculo() != null && t.getVehiculo().getPlaca().contains(placaBuscar));
             boolean coincideEstado = "TODOS".equals(estado) || estado.equals(t.getEstado());
 

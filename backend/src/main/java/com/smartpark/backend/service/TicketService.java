@@ -24,6 +24,10 @@ public class TicketService {
         this.parkingSlotRepository = parkingSlotRepository;
     }
 
+    public List<Ticket> obtenerTodos() {
+        return ticketRepository.findAll();
+    }
+
     public ReporteDashboardDTO generarDatosDashboard(String fechaFiltro) {
 
         List<Ticket> todosLosTickets = ticketRepository.findAll();
@@ -53,7 +57,8 @@ public class TicketService {
 
         dto.setVehiculosIngresadosHoy(ingresadosHoy);
         dto.setVehiculosEstacionados(estacionados);
-        dto.setEspaciosLibres((int) totalEspacios - estacionados);        dto.setIngresosHoy(ingresosHoy);
+        dto.setEspaciosLibres((int) totalEspacios - estacionados);
+        dto.setIngresosHoy(ingresosHoy);
         dto.setIngresosMes(ingresosMes);
 
         List<Ticket> ticketsPagados = todosLosTickets.stream()
@@ -67,7 +72,8 @@ public class TicketService {
 
         dto.setIngresosPorTipoVehiculo(ticketsPagados.stream()
                 .collect(Collectors.groupingBy(
-                        t -> t.getVehiculo().getClass().getSimpleName().split("\\$")[0].toUpperCase(),
+                        // Solución: Usamos el tipo del slot asignado
+                        t -> t.getParkingSlot() != null ? t.getParkingSlot().getTipoVehiculoPermitido() : "DESCONOCIDO",
                         Collectors.summingDouble(Ticket::getCostoTotal))));
 
         dto.setHorasPico(todosLosTickets.stream()
@@ -75,14 +81,15 @@ public class TicketService {
                         t -> t.getHoraEntrada().getHour() + ":00",
                         Collectors.summingInt(e -> 1))));
 
-        List movimientos = todosLosTickets.stream()
+        List<MovimientoDTO> movimientos = todosLosTickets.stream()
                 .sorted(Comparator.comparing(Ticket::getHoraEntrada).reversed())
                 .limit(15)
                 .map(t -> new MovimientoDTO(
                         t.getHoraEntrada().format(formatterFecha),
                         t.getHoraEntrada().format(formatterHora),
                         t.getVehiculo().getPlaca(),
-                        t.getVehiculo().getClass().getSimpleName().split("\\$")[0].toUpperCase(), // <-- Magia contra el Proxy
+                        // Solución: Usamos el tipo del slot asignado
+                        t.getParkingSlot() != null ? t.getParkingSlot().getTipoVehiculoPermitido() : "DESCONOCIDO",
                         t.getEstado(),
                         t.getCostoTotal() != null ? t.getCostoTotal() : 0.0
                 )).collect(Collectors.toList());

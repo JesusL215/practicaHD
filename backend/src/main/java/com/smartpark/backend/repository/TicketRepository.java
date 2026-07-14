@@ -17,5 +17,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findActiveTicketByPlaca(@Param("placa") String placa);
 
     @Query("SELECT t.vehiculo.placa FROM Ticket t WHERE t.estado = 'ACTIVO'")
-    List findPlacasActivas();
+    List<String> findPlacasActivas();
 }
