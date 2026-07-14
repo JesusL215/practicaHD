@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" style="-fx-background-color: #f4f6f9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smartpark.estacionamiento.controller.HistorialController">
+
+    <padding><Insets top="30" right="40" bottom="40" left="40"/></padding>
+
+    <Label text="Historial de Movimientos" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <!-- Filtros de Búsqueda -->
+    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
+        <TextField fx:id="txtBuscarPlaca" promptText="Buscar por Placa" prefWidth="200"/>
+        <DatePicker fx:id="dateInicio" promptText="Fecha Inicio"/>
+        <DatePicker fx:id="dateFin" promptText="Fecha Fin"/>
+        <ComboBox fx:id="comboEstado" promptText="Estado" prefWidth="150"/>
+        <Button text="🔍 Buscar" onAction="#handleBuscar" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+        <Button text="🧹 Limpiar" onAction="#handleLimpiar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Tabla de Datos -->
+    <TableView fx:id="tablaHistorial" VBox.vgrow="ALWAYS" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
+        <columns>
+            <TableColumn fx:id="colId" text="ID Ticket" prefWidth="80"/>
+            <TableColumn fx:id="colPlaca" text="Placa" prefWidth="120"/>
+            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="100"/>
+            <TableColumn fx:id="colEntrada" text="Hora Entrada" prefWidth="150"/>
+            <TableColumn fx:id="colSalida" text="Hora Salida" prefWidth="150"/>
+            <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
+            <TableColumn fx:id="colMonto" text="Monto (S/)" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+</VBox>

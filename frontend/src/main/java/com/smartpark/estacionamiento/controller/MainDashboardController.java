@@ -256,7 +256,14 @@ public class MainDashboardController {
 
     @FXML
     private void handleVerHistorial() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Próximamente", "El historial se consumirá desde la base de datos en la nube en el Sprint 2.");
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/smartpark/estacionamiento/view/Historial.fxml"));
+            javafx.scene.Parent historialView = loader.load();
+            mainBorderPane.setCenter(historialView); // Cargamos la vista en el centro del Dashboard
+        } catch (Exception e) {
+            mostrarAlerta(javafx.scene.control.Alert.AlertType.ERROR, "Error de Navegación", "No se pudo cargar el historial: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
