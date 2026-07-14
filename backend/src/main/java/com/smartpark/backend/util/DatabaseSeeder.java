@@ -33,20 +33,24 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // 2. Insertar slots
         if (slotRepository.count() == 0) {
-            System.out.println("Seeder: Insertando espacios de estacionamiento...");
-            slotRepository.save(new ParkingSlot(null, "A1", "DISPONIBLE", "AUTO"));
-            slotRepository.save(new ParkingSlot(null, "A2", "DISPONIBLE", "AUTO"));
-            slotRepository.save(new ParkingSlot(null, "A3", "DISPONIBLE", "AUTO"));
-            slotRepository.save(new ParkingSlot(null, "A4", "DISPONIBLE", "AUTO"));
-            slotRepository.save(new ParkingSlot(null, "A5", "DISPONIBLE", "AUTO"));
-            slotRepository.save(new ParkingSlot(null, "A6", "DISPONIBLE", "AUTO"));
-            slotRepository.save(new ParkingSlot(null, "M1", "DISPONIBLE", "MOTO"));
-            slotRepository.save(new ParkingSlot(null, "M2", "DISPONIBLE", "MOTO"));
-            slotRepository.save(new ParkingSlot(null, "M3", "DISPONIBLE", "MOTO"));
-            slotRepository.save(new ParkingSlot(null, "M4", "DISPONIBLE", "MOTO"));
-            slotRepository.save(new ParkingSlot(null, "M5", "DISPONIBLE", "MOTO"));
-            slotRepository.save(new ParkingSlot(null, "M6", "DISPONIBLE", "MOTO"));
+            ParkingSlot s1 = new ParkingSlot(null, "A1", "DISPONIBLE", "AUTO", null);
+            ParkingSlot s2 = new ParkingSlot(null, "A2", "DISPONIBLE", "AUTO", null);
+            ParkingSlot s3 = new ParkingSlot(null, "A3", "DISPONIBLE", "AUTO", null);
+            ParkingSlot s4 = new ParkingSlot(null, "A4", "DISPONIBLE", "AUTO", null);
+            ParkingSlot s5 = new ParkingSlot(null, "A5", "DISPONIBLE", "AUTO", null);
+            ParkingSlot s6 = new ParkingSlot(null, "A6", "DISPONIBLE", "AUTO", null);
 
+            ParkingSlot s7 = new ParkingSlot(null, "M1", "DISPONIBLE", "MOTO", null);
+            ParkingSlot s8 = new ParkingSlot(null, "M2", "DISPONIBLE", "MOTO", null);
+            ParkingSlot s9 = new ParkingSlot(null, "M3", "DISPONIBLE", "MOTO", null);
+            ParkingSlot s10 = new ParkingSlot(null, "M4", "DISPONIBLE", "MOTO", null);
+            ParkingSlot s11 = new ParkingSlot(null, "M5", "DISPONIBLE", "MOTO", null);
+            ParkingSlot s12 = new ParkingSlot(null, "M6", "DISPONIBLE", "MOTO", null);
+
+            // ESTA ES LA LÍNEA CRÍTICA QUE FALTA:
+            slotRepository.saveAll(java.util.List.of(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12));
+
+            System.out.println("Espacios de estacionamiento creados exitosamente por el Seeder.");
         }
 
         if (tarifaRepository.count() == 0) {
