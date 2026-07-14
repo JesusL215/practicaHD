@@ -1,11 +1,13 @@
 package com.smartpark.estacionamiento.model.domain;
 
+import java.time.LocalDateTime;
+
 public class Ticket {
     private Long id;
     private Vehiculo vehiculo;
     private ParkingSlot parkingSlot;
-    private String horaEntrada;
-    private String horaSalida;
+    private LocalDateTime horaEntrada;
+    private LocalDateTime horaSalida;
     private Double costoTotal;
     private String estado;
 
@@ -34,19 +36,19 @@ public class Ticket {
         this.parkingSlot = parkingSlot;
     }
 
-    public String getHoraEntrada() {
+    public LocalDateTime getHoraEntrada() {
         return horaEntrada;
     }
 
-    public void setHoraEntrada(String horaEntrada) {
+    public void setHoraEntrada(LocalDateTime horaEntrada) {
         this.horaEntrada = horaEntrada;
     }
 
-    public String getHoraSalida() {
+    public LocalDateTime getHoraSalida() {
         return horaSalida;
     }
 
-    public void setHoraSalida(String horaSalida) {
+    public void setHoraSalida(LocalDateTime horaSalida) {
         this.horaSalida = horaSalida;
     }
 

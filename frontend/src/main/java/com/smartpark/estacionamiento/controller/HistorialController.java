@@ -63,12 +63,14 @@ public class HistorialController {
         });
 
         colEntrada.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getHoraEntrada() != null) return new SimpleStringProperty(cellData.getValue().getHoraEntrada().format(formatter));
+            if (cellData.getValue().getHoraEntrada() != null)
+                return new SimpleStringProperty(cellData.getValue().getHoraEntrada().format(formatter));
             return new SimpleStringProperty("");
         });
 
         colSalida.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getHoraSalida() != null) return new SimpleStringProperty(cellData.getValue().getHoraSalida().format(formatter));
+            if (cellData.getValue().getHoraSalida() != null)
+                return new SimpleStringProperty(cellData.getValue().getHoraSalida().format(formatter));
             return new SimpleStringProperty("-");
         });
 
@@ -100,10 +102,11 @@ public class HistorialController {
         LocalDate fin = dateFin.getValue();
         String estado = comboEstado.getValue();
 
-        // Filtrado dinámico en memoria (muy rápido)
-        List<Ticket> filtrados = listaTicketsMaster.stream().filter(t -> {
+        List filtrados = listaTicketsMaster.stream().filter(t -> {
             boolean coincidePlaca = placaBuscar.isEmpty() || (t.getVehiculo() != null && t.getVehiculo().getPlaca().contains(placaBuscar));
             boolean coincideEstado = "TODOS".equals(estado) || estado.equals(t.getEstado());
+
+            // Ya no hay error aquí porque getHoraEntrada() ahora devuelve LocalDateTime real
             boolean coincideInicio = inicio == null || (t.getHoraEntrada() != null && !t.getHoraEntrada().toLocalDate().isBefore(inicio));
             boolean coincideFin = fin == null || (t.getHoraEntrada() != null && !t.getHoraEntrada().toLocalDate().isAfter(fin));
 

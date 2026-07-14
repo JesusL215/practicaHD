@@ -1,6 +1,6 @@
 package com.smartpark.estacionamiento.api;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.smartpark.estacionamiento.model.domain.ParkingSlot;
 import com.smartpark.estacionamiento.model.domain.Ticket;
@@ -13,6 +13,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class SmartParkApiClient {
 
@@ -22,7 +24,21 @@ public class SmartParkApiClient {
 
     public SmartParkApiClient() {
         this.httpClient = HttpClient.newHttpClient();
-        this.gson = new Gson();
+        // CONFIGURACIÓN DEL ADAPTADOR GSON PARA LOCALDATETIME
+        this.gson = new GsonBuilder()
+
+                .registerTypeAdapter(LocalDateTime.class,
+                        (JsonDeserializer<LocalDateTime>) (json, type, context) ->
+                                LocalDateTime.parse(
+                                        json.getAsString(),
+                                        DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+
+                .registerTypeAdapter(LocalDateTime.class,
+                        (JsonSerializer<LocalDateTime>) (src, type, context) ->
+                                new JsonPrimitive(
+                                        src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+
+                .create();
     }
 
     public List<ParkingSlot> obtenerTodosLosSlots() throws Exception {
